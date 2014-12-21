@@ -1,8 +1,11 @@
 # -*- coding: utf-8 -*-
-import sys
 import numpy as np
 
 def Vectorize(seriesData):
+    # Check for series size
+    if len(seriesData.shape) == 1:
+        seriesData = seriesData.reshape(1, seriesData.shape[0])
+
     # Get length of series data
     dataLength = len(seriesData)
     # Feature space

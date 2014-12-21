@@ -1,8 +1,9 @@
+# -*- coding: utf-8 -*-
 import numpy as np
 
 # Input is a same length series
 def MovingAvg(series, n=5):
-    # Check for matrix size. (Example: array([1,2,3])
+    # Check for series size. (Example: array([1,2,3])
     if len(series.shape) == 1:
         series = series.reshape(1, series.shape[0])
 
