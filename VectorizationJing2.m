@@ -34,7 +34,7 @@ function [ vectorFeature ] = Vectorization2( seriesData )
     velocitySeriesDataBoolean(velocitySeriesData>=1)=1;
     velocitySeriesDataBoolean(velocitySeriesData<1)=-1;
     trendDirection = velocitySeriesDataBoolean(:,2:end)+velocitySeriesDataBoolean(:,1:end-1);
-    [turnPointLocation(:,1),turnPointLocation(:,2)] = find(trendDirection==0);
+    [turnPointLocation(:,1), turnPointLocation(:,2)] = find(trendDirection == 0);
     turnPointLocation(:,2)=turnPointLocation(:,2)+1;    
     linearInd = sub2ind(size(velocitySeriesDataBoolean), turnPointLocation(:,1), turnPointLocation(:,2));
     trendValue = velocitySeriesDataBoolean(linearInd);
