@@ -28,8 +28,8 @@ def envelope(train_label, train_data, test_data, num_std):
 	print s_test[0]
 	for i in range(s_test[0]):
 		for count in range(1,s_label+1):
-			num_one = sum([test_data[i][j] > (mean_train[count-1][j] + num_std*std_train[count-1][j]) for j in range(s_test[1])])
-			num_mone = sum([test_data[i][j] < (mean_train[count-1][j] + num_std*std_train[count-1][j]) for j in range(s_test[1])])
+			num_one = len(np.where(test_data[i] > (mean_train[count-1] + num_std*std_train[count-1]))[0])		
+			num_mone = len(np.where(test_data[i] < (mean_train[count-1] + num_std*std_train[count-1]))[0])
 
 			envelope_data[i][(count-1)*3] = s_test[1] - num_one - num_mone
 			envelope_data[i][(count-1)*3 + 1] = num_one
