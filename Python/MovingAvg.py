@@ -10,12 +10,10 @@ def MovingAvg(series, n=5):
     result = np.zeros((series.shape[0], series.shape[1]- n + 1))
 
     for idx in range(series.shape[1] - n + 1):
-        print series[:, idx:idx+n]
         result[:, idx] = np.mean(series[:, idx:idx+n], 1)
 
-    print result.shape
-    print result
     return result
 
+# Testing Code
 if __name__ == '__main__':
     MovingAvg(np.array([[1,2,3,4,5,4,3,2,1], [5,4,3,2,1,2,3,4,5]]), 3)
