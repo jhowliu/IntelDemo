@@ -11,7 +11,7 @@ def OpenSerial():
     return serial.Serial('/dev/ttyACM0', 9600)
 
 def writeInFile(name, data):
-    fileName = name  
+    fileName = name
     currentTime = datetime.now()
 
     with open(fileName, 'w') as f:
@@ -23,32 +23,38 @@ def Run(name):
     # Do preprocessing & moving average
     [axis1, axis2, axis3, axis4, axis5, axis6, press1, press2, press3, press4] = Preprocessing(data)
     preproData = np.array([axis1, axis2, axis3, axis4, axis5, axis6, press1, press2, press3, press4])
+
     # Vectorization
-    vectorFeature = Vectorize(preproData)
+    vectorFeature = np.zeros((preproData.shape[1], 1))
+    for x in preproData:
+        vectorFeature = np.insert(vectorFeature, vectorFeature.shape[1], Vectorize(x), axis=1)
+    vectorFeature = np.delete(vectorFeature, 0, axis=1)
     print "Finish"
+
 def Read(name):
-    ser = OpenSerial()
-    line = ser.readline()
-    dataList = []
+    Run(name)
+    #ser = OpenSerial()
+    #line = ser.readline()
+    #dataList = []
 
-    print line
+    #print line
 
-    line = ser.readline()
-    while line:
-        print line
+    #line = ser.readline()
+    #while line:
+    #    print line
 
-        line = line.strip()
+    #    line = line.strip()
 
-        if (line != "Closed"):
-            dataList.extend([line])
+    #    if (line != "Closed"):
+    #        dataList.extend([line])
 
-        if (line == "Closed"):
-            writeInFile(name, dataList)
-            # Run the Main function
-            Run(name)
-            dataList = []
+    #    if (line == "Closed"):
+    #        writeInFile(name, dataList)
+    #        # Run the Main function
+    #        Run(name)
+    #        dataList = []
 
-        line = ser.readline()
+    #    line = ser.readline()
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
