@@ -39,6 +39,10 @@ def TrainingModel(namelist):
         trainingLabel.extend([i for _ in range(axis1.shape[0])])
         i+=1
 
+    trainingLabel = trainingLabel * 9
+
+    # The flag of current person
+    currentGuy = 0
     for data in dataPool:
         # Vectorization
         vectorFeature = np.zeros((data.shape[1], 1))
@@ -52,10 +56,12 @@ def TrainingModel(namelist):
             tmp = []
             for i in range(4):
                 tmp.extend(dataPool[i][idx].tolist())
-            print len(tmp)
-        #print envelopeResult
 
+            envelopeResult = np.array(envelope(np.array(trainingLabel[idx*len(tmp):(idx+1)*len(tmp)]), tmp, dataPool[currentGuy][idx], 1))
 
+            vectorFeature = np.insert(vectorFeature, vectorFeature.shape[1], envelopeResult.reshape(envelopeResult.shape[1], envelopeResult.shape[0]), axis=1)
+        print vectorFeature.shape
+        currentGuy +=1
 
         model, p_val = Training(vectorFeature)
 
