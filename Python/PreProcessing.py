@@ -7,6 +7,11 @@ def Preprocessing(rawSeries, n=2):
     if len(rawSeries.shape) == 1:
         rawSeries = rawSeries.reshape(1, rawSeries.shape[0])
 
+    # Delete peak value (More than 3 standard deviation)
+    for idx in range(rawSeries.shape[1]-4):
+        rawSeries = np.delete(rawSeries, np.where(rawSeries[:, idx+1] > np.mean(rawSeries[:, idx+1]) + 3*np.std(rawSeries[:, idx+1])), 0)
+        rawSeries = np.delete(rawSeries, np.where(rawSeries[:, idx+1] < np.mean(rawSeries[:, idx+1]) - 3*np.std(rawSeries[:, idx+1])), 0)
+
     idx = np.where(rawSeries[:, 0] == 0)
     idx = np.insert(idx[0], idx[0].shape[0], rawSeries.shape[0])
 
