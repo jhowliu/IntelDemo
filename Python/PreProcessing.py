@@ -42,7 +42,7 @@ def Preprocessing(rawSeries, n=2):
         press2[i, 0:dataLen[i]-n+1] = MovingAvg(rawSeries[idx[i]:idx[i]+dataLen[i], 8], n)
         press3[i, 0:dataLen[i]-n+1] = MovingAvg(rawSeries[idx[i]:idx[i]+dataLen[i], 9], n)
         press4[i, 0:dataLen[i]-n+1] = MovingAvg(rawSeries[idx[i]:idx[i]+dataLen[i], 10], n)
-
+    
     return axis1, axis2, axis3, axis4, axis5, axis6, press1, press2, press3, press4
 
 # Testing Code
