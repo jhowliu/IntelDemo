@@ -6,6 +6,7 @@ import numpy as np
 from Training import Training
 from PreProcessing import Preprocessing
 from Vectorization import Vectorize
+from Envelope import envelope
 from datetime import datetime
 
 def OpenSerial():
@@ -23,21 +24,38 @@ def TrainingModel(namelist):
     dataPool = []
     modelPool = []
     p_tabel = []
+    trainingLabel = []
+    i = 0
     # Load the data in numpy's type
     for name in namelist:
         data = np.genfromtxt(name, delimiter=',')
         # Do preprocessing & moving average
         [axis1, _, axis3, axis4, axis5, axis6, press1, press2, press3, press4] = Preprocessing(data)
         preproData = np.array([axis1, axis3, axis4, axis5, axis6, press1, press2, press3, press4])
+        # Collect data which has been processing
         dataPool.append(preproData)
+        # Create training label
+        print axis1.shape
+        trainingLabel.extend([i for _ in range(axis1.shape[0])])
+        i+=1
 
     for data in dataPool:
         # Vectorization
-        vectorFeature = np.zeros((preproData.shape[1], 1))
+        vectorFeature = np.zeros((data.shape[1], 1))
         # Combine vectorize features of all attribute. (Dimension = n * 153)
-        for x in preproData:
+        for x in data:
             vectorFeature = np.insert(vectorFeature, vectorFeature.shape[1], Vectorize(x), axis=1)
         vectorFeature = np.delete(vectorFeature, 0, axis=1)
+
+        # Envelope
+        for idx in range(9):
+            tmp = []
+            for i in range(4):
+                tmp.extend(dataPool[i][idx].tolist())
+            print len(tmp)
+        #print envelopeResult
+
+
 
         model, p_val = Training(vectorFeature)
 

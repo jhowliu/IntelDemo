@@ -1,5 +1,6 @@
 import numpy as np
 def envelope(train_label, train_data, test_data, num_std):
+        print len(train_data)
 	unique_label = set(train_label)
 
 	s_train = [len(train_data), len(train_data[0])]
@@ -7,7 +8,11 @@ def envelope(train_label, train_data, test_data, num_std):
 	s_label = len(unique_label)
 
 	mean_train = np.zeros([s_label, s_train[1]])
-	std_train =	np.zeros([s_label, s_train[1]])
+	std_train = np.zeros([s_label, s_train[1]])
+
+        #for i in range(s_label):
+        #    now_label_data = []
+
 	for i in range(1,s_label+1):
 		now_label_data = []
 		label = unique_label.pop()
@@ -15,6 +20,7 @@ def envelope(train_label, train_data, test_data, num_std):
 		for t in range(len(train_data)):
 			if train_label[t] == label:
 				now_label_data.append(train_data[t])
+
 		# Compute the mean
 		mean_train[i-1] = np.add.reduce(now_label_data) / float(len(now_label_data))
 
