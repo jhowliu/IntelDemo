@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+#Gk-*- coding: utf-8 -*-
 import numpy as np
 from MovingAvg import MovingAvg
 
@@ -9,8 +9,11 @@ def Preprocessing(rawSeries, n=2):
 
     # Delete peak value (More than 3 standard deviation)
     for idx in range(rawSeries.shape[1]-4):
-        rawSeries = np.delete(rawSeries, np.where(rawSeries[:, idx+1] > np.mean(rawSeries[:, idx+1]) + 3*np.std(rawSeries[:, idx+1])), 0)
-        rawSeries = np.delete(rawSeries, np.where(rawSeries[:, idx+1] < np.mean(rawSeries[:, idx+1]) - 3*np.std(rawSeries[:, idx+1])), 0)
+        upper = np.mean(rawSeries[:, idx+1]) + 3*np.std(rawSeries[:, idx+1])
+        lower = np.mean(rawSeries[:, idx+1]) - 3*np.std(rawSeries[:, idx+1])
+
+        rawSeries[np.where(rawSeries[:, idx+1] > upper), idx+1] = upper
+        rawSeries[np.where(rawSeries[:, idx+1] < lower), idx+1] = lower
 
     idx = np.where(rawSeries[:, 0] == 0)
     idx = np.insert(idx[0], idx[0].shape[0], rawSeries.shape[0])
@@ -42,9 +45,9 @@ def Preprocessing(rawSeries, n=2):
         press2[i, 0:dataLen[i]-n+1] = MovingAvg(rawSeries[idx[i]:idx[i]+dataLen[i], 8], n)
         press3[i, 0:dataLen[i]-n+1] = MovingAvg(rawSeries[idx[i]:idx[i]+dataLen[i], 9], n)
         press4[i, 0:dataLen[i]-n+1] = MovingAvg(rawSeries[idx[i]:idx[i]+dataLen[i], 10], n)
-    
+
     return axis1, axis2, axis3, axis4, axis5, axis6, press1, press2, press3, press4
 
 # Testing Code
 if __name__ == '__main__':
-    Preprocessing(np.array([[0,1,2,3,4,5,6,7,8,9,10],[1,1,2,3,2,4,2,2,2,2,2], [3,1,2,3,2,2,2,2,2,2,2],[0,1,2,1,2,2,2,3,3,3,3],[1,2,2,2,1,1,2,3,4,5,6]]))
+    Preprocessing(np.array([[0,1,2,3,4,5,6,7,8,9,10],[1,1,2,3,2,4,2,2,2,2,2], [3,1,2,3,2,2,2,2,2,2,2],[0,1,2,1,2,2,2,3,3,3,3],[1,2,2,2,1,1,2,3,4,5,6],[0,1,2,1,2,2,2,3,3,3,3],[1,2,2,2,1,1,2,3,4,5,6]]))

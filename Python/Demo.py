@@ -3,7 +3,8 @@ import serial
 import os.path
 import sys
 import numpy as np
-from PreProcessing import Preprocessing 
+from Training import Training
+from PreProcessing import Preprocessing
 from Vectorization import Vectorize
 from datetime import datetime
 
@@ -17,26 +18,36 @@ def writeInFile(name, data):
     with open(fileName, 'w') as f:
         for tmp in data:
             f.write(tmp + "," + str(currentTime.hour) + "," + str(currentTime.weekday()+1) +  "\n")
-def Run(name):
+
+def TrainingModel(namelist):
+    dataPool = []
+    modelPool = []
+    p_tabel = []
     # Load the data in numpy's type
-    data = np.genfromtxt(name, delimiter=',')
-    # Do preprocessing & moving average
-    [axis1, axis2, axis3, axis4, axis5, axis6, press1, press2, press3, press4] = Preprocessing(data)
-    preproData = np.array([axis1, axis2, axis3, axis4, axis5, axis6, press1, press2, press3, press4])
+    for name in namelist:
+        data = np.genfromtxt(name, delimiter=',')
+        # Do preprocessing & moving average
+        [axis1, _, axis3, axis4, axis5, axis6, press1, press2, press3, press4] = Preprocessing(data)
+        preproData = np.array([axis1, axis3, axis4, axis5, axis6, press1, press2, press3, press4])
+        dataPool.append(preproData)
 
-    # Vectorization
-    vectorFeature = np.zeros((preproData.shape[1], 1))
+    for data in dataPool:
+        # Vectorization
+        vectorFeature = np.zeros((preproData.shape[1], 1))
+        # Combine vectorize features of all attribute. (Dimension = n * 153)
+        for x in preproData:
+            vectorFeature = np.insert(vectorFeature, vectorFeature.shape[1], Vectorize(x), axis=1)
+        vectorFeature = np.delete(vectorFeature, 0, axis=1)
 
-    # Combine vectorize features of all attribute. (Dimension = n * 170)
-    for x in preproData:
-        vectorFeature = np.insert(vectorFeature, vectorFeature.shape[1], Vectorize(x), axis=1)
+        model, p_val = Training(vectorFeature)
 
-    vectorFeature = np.delete(vectorFeature, 0, axis=1)
+        modelPool.append(model)
+        p_tabel.append(p_val)
 
     print "Finish"
 
 def Read(name):
-    Run(name)
+    TrainingModel(name)
     #ser = OpenSerial()
     #line = ser.readline()
     #dataList = []
@@ -64,4 +75,4 @@ if __name__ == "__main__":
     if len(sys.argv) < 2:
         print "Usage: python ReadSerial.py <fileName>"
         exit(1)
-    Read(sys.argv[1])
+    Read([sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4]])
