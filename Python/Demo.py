@@ -26,9 +26,13 @@ def Run(name):
 
     # Vectorization
     vectorFeature = np.zeros((preproData.shape[1], 1))
+
+    # Combine vectorize features of all attribute. (Dimension = n * 170)
     for x in preproData:
         vectorFeature = np.insert(vectorFeature, vectorFeature.shape[1], Vectorize(x), axis=1)
+
     vectorFeature = np.delete(vectorFeature, 0, axis=1)
+
     print "Finish"
 
 def Read(name):

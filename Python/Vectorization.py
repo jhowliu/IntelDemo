@@ -6,7 +6,7 @@ def Vectorize(seriesData):
     if len(seriesData.shape) == 1:
         seriesData = seriesData.reshape(1, seriesData.shape[0])
 
-    # Get length of series data
+    # Get length of series data 
     dataLength = len(seriesData)
 
     # Feature space
