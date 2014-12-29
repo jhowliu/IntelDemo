@@ -2,6 +2,7 @@
 import serial
 import os.path
 import sys
+import random as rd
 import numpy as np
 from Processing import Training
 from Processing import Testing
@@ -25,6 +26,7 @@ def TrainingModel(dataPool, trainingLabel, testData):
     params = [[0.00160000000000000, 0.0129746337890625], [0.000400000000000000, 0.00256289062500000], [0.00320000000000000, 0.00384433593750000], [0.0256000000000000, 0.0291929260253906]]
     modelPool = []
     p_tabel = []
+    testingData = np.zeros((1, 261))
 
     # The flag of current person
     currentGuy = 0
@@ -49,15 +51,23 @@ def TrainingModel(dataPool, trainingLabel, testData):
         # Max and Min is 0, avoiding to divide by zero
         scaleRange[scaleRange == 0] = 1
         vectorFeature = vectorFeature/scaleRange
-        model, p_val = Training(vectorFeature, params[currentGuy])
+        # Seperate testing and training
+        allIdxSet  = set(range(len(data[0])))
+        testingIdxSet = set(rd.sample(range(len(data[0])), 40))
+        testingData = np.insert(testingData, testingData.shape[0], vectorFeature[list(testingIdxSet)], 0)
+
+        model, p_val = Training(vectorFeature[list(allIdxSet-testingIdxSet)], params[currentGuy])
 
         modelPool.append(model)
         p_tabel.append(p_val)
 
         currentGuy +=1
 
+    testingData = np.delete(testingData, 0, axis=0)
+
+    print testingData.shape
     print "Finish"
-    return modelPool, p_tabel
+    return modelPool, p_tabel, testingData
 
 def TestingDataRepresent(dataPool, trainingLabel, testingData):
     testingFeature = np.zeros((testingData.shape[1], 1))
@@ -104,9 +114,9 @@ def Read(namelist):
 
     trainingLabel = trainingLabel * 9
 
-    modelPool, p_tabel = TrainingModel(dataPool[:4], trainingLabel, dataPool[4])
+    modelPool, p_tabel, vectorFeature = TrainingModel(dataPool[:4], trainingLabel, dataPool[4])
     testingFeature = TestingDataRepresent(dataPool[:4], trainingLabel, dataPool[4])
-    Testing(modelPool, p_tabel, testingFeature)
+    Testing(modelPool, p_tabel, vectorFeature)
     #ser = OpenSerial()
     #line = ser.readline()
     #dataList = []
