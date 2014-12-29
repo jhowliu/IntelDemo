@@ -4,7 +4,7 @@ import numpy as np
 from svmutil import *
 
 def Training(data, params):
-    param = '-s 2 -t 2 -n ' + str(params[0]) + ' -g ' + str(params[1]) 
+    param = '-s 2 -t 2 -n ' + str(params[0]) + ' -g ' + str(params[1])
     print param
     model = svm_train([1 for _ in range(len(data))], data.tolist(), param)
 
@@ -14,6 +14,7 @@ def Training(data, params):
 
     return model, p_val
 
-def Testing(data, models, p_val):
-    for model in models:
-        svm_predict([-1 for _ in range(len(data))], data.tolist(), model)
+def Testing(modelPool, p_val, testingFeature):
+    print testingFeature
+    for model in modelPool:
+        p_label, p_acc, p_val = svm_predict([1 for _ in range(len(testingFeature))], testingFeature.tolist(), model)
