@@ -35,6 +35,7 @@ def envelope(train_label, train_data, test_data, num_std):
             envelope_data[i][(count)*3 + 2] = num_mone
 
     return envelope_data
+
 if __name__ == '__main__':
     train_label = [1,1,2,2]
     train_data = [[1,0,1], [1,1,1], [0,0,1], [1,0,1]]

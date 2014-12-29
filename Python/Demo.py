@@ -3,7 +3,8 @@ import serial
 import os.path
 import sys
 import numpy as np
-from Training import Training
+from Processing import Training
+
 from PreProcessing import Preprocessing
 from Vectorization import Vectorize
 from Envelope import envelope
@@ -21,6 +22,7 @@ def writeInFile(name, data):
             f.write(tmp + "," + str(currentTime.hour) + "," + str(currentTime.weekday()+1) +  "\n")
 
 def TrainingModel(namelist):
+    params = [[0.00160000000000000, 0.0129746337890625], [0.000400000000000000, 0.00256289062500000], [0.00320000000000000, 0.00384433593750000], [0.0256000000000000, 0.0291929260253906]]
     dataPool = []
     modelPool = []
     p_tabel = []
@@ -35,7 +37,7 @@ def TrainingModel(namelist):
         # Collect data which has been processing
         dataPool.append(preproData)
         # Create training label
-        print axis1.shape
+        #print axis1.shape
         trainingLabel.extend([i for _ in range(axis1.shape[0])])
         i+=1
 
@@ -50,7 +52,6 @@ def TrainingModel(namelist):
         for x in data:
             vectorFeature = np.insert(vectorFeature, vectorFeature.shape[1], Vectorize(x), axis=1)
         vectorFeature = np.delete(vectorFeature, 0, axis=1)
-
         # Envelope
         for idx in range(9):
             tmp = []
@@ -59,18 +60,28 @@ def TrainingModel(namelist):
 
             envelopeResult = np.array(envelope(np.array(trainingLabel[idx*len(tmp):(idx+1)*len(tmp)]), tmp, dataPool[currentGuy][idx], 1))
 
-            vectorFeature = np.insert(vectorFeature, vectorFeature.shape[1], envelopeResult.reshape(envelopeResult.shape[1], envelopeResult.shape[0]), axis=1)
-        print vectorFeature.shape
-        currentGuy +=1
+            vectorFeature = np.insert(vectorFeature, vectorFeature.shape[1], envelopeResult.T, axis=1)
 
-        model, p_val = Training(vectorFeature)
+        print vectorFeature.shape
+        # Max-min Normalize
+        scaleRange = np.abs(np.max(vectorFeature, 0) - np.min(vectorFeature, 0))
+        # Max and Min is 0, avoiding to divide by zero
+        scaleRange[scaleRange == 0] = 1
+        vectorFeature = vectorFeature/scaleRange
+        model, p_val = Training(vectorFeature, params[currentGuy])
 
         modelPool.append(model)
         p_tabel.append(p_val)
 
-    print "Finish"
+        currentGuy +=1
 
-def Read(name):
+    print "Finish"
+    return modelPool, p_tabel
+
+def Testing(name, models, p_vals):
+
+
+def Read(name, testing):
     TrainingModel(name)
     #ser = OpenSerial()
     #line = ser.readline()
@@ -99,4 +110,4 @@ if __name__ == "__main__":
     if len(sys.argv) < 2:
         print "Usage: python ReadSerial.py <fileName>"
         exit(1)
-    Read([sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4]])
+    Read([sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4]], sys.argv[5])

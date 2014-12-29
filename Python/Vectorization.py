@@ -7,7 +7,7 @@ def Vectorize(seriesData):
         seriesData = seriesData.reshape(1, seriesData.shape[0])
 
     # Get length of series data 
-    dataLength = len(seriesData)
+    dataLength = seriesData.shape[0]
 
     # Feature space
     vectorFeature = np.zeros((dataLength, 17))
@@ -68,6 +68,7 @@ def Vectorize(seriesData):
         vectorFeature[:, 11+idx] = np.mean(seriesData[:, np.floor(segLenth * idx):np.floor(segLenth * (idx+1))], 1)
 
     vectorFeature[:, 16] = np.sum(np.abs(velocityDiff))
-    vectorFeature = vectorFeature/np.max(vectorFeature)
-    return vectorFeature.reshape(17, dataLength)
+
+    return vectorFeature.T
+
 
