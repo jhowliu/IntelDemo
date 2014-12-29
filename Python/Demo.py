@@ -14,18 +14,11 @@ from datetime import datetime
 def OpenSerial():
     return serial.Serial('/dev/ttyACM0', 9600)
 
-def writeInFile(name, data):
-    fileName = name
-    currentTime = datetime.now()
-
-    with open(fileName, 'w') as f:
-        for tmp in data:
-            f.write(tmp + "," + str(currentTime.hour) + "," + str(currentTime.weekday()+1) +  "\n")
-
-def TrainingModel(dataPool, trainingLabel, testData):
+def TrainingModel(dataPool, trainingLabel):
     params = [[0.00160000000000000, 0.0129746337890625], [0.000400000000000000, 0.00256289062500000], [0.00320000000000000, 0.00384433593750000], [0.0256000000000000, 0.0291929260253906]]
     modelPool = []
     p_tabel = []
+    testingLabel = []
     testingData = np.zeros((1, 261))
 
     # The flag of current person
@@ -46,17 +39,21 @@ def TrainingModel(dataPool, trainingLabel, testData):
             envelopeResult = np.array(envelope(np.array(trainingLabel[idx*len(tmp):(idx+1)*len(tmp)]), tmp, dataPool[currentGuy][idx], 1))
             vectorFeature = np.insert(vectorFeature, vectorFeature.shape[1], envelopeResult.T, axis=1)
 
+        # Create testing lable
+        testingLabel.extend([currentGuy for _ in range(40)])
+
         # Max-min Normalize
         scaleRange = np.abs(np.max(vectorFeature, 0) - np.min(vectorFeature, 0))
         # Max and Min is 0, avoiding to divide by zero
         scaleRange[scaleRange == 0] = 1
         vectorFeature = vectorFeature/scaleRange
         # Seperate testing and training
-        allIdxSet  = set(range(len(data[0])))
-        testingIdxSet = set(rd.sample(range(len(data[0])), 40))
-        testingData = np.insert(testingData, testingData.shape[0], vectorFeature[list(testingIdxSet)], 0)
+        #allIdxSet  = set(range(len(data[0])))
+        #testingIdxSet = set(rd.sample(range(len(data[0])), 40))
+        #testingData = np.insert(testingData, testingData.shape[0], vectorFeature[list(testingIdxSet)], 0)
 
-        model, p_val = Training(vectorFeature[list(allIdxSet-testingIdxSet)], params[currentGuy])
+        #model, p_val = Training(vectorFeature[list(allIdxSet-testingIdxSet)], params[currentGuy])
+        model, p_val = Training(vectorFeature, params[currentGuy])
 
         modelPool.append(model)
         p_tabel.append(p_val)
@@ -65,11 +62,14 @@ def TrainingModel(dataPool, trainingLabel, testData):
 
     testingData = np.delete(testingData, 0, axis=0)
 
-    print testingData.shape
     print "Finish"
-    return modelPool, p_tabel, testingData
+    return modelPool, p_tabel, testingData, testingLabel
 
-def TestingDataRepresent(dataPool, trainingLabel, testingData):
+def DataRepresent(dataPool, trainingLabel, rawdata):
+    # Preprocessing
+    [axis1, _, axis3, axis4, axis5, axis6, press1, press2, press3, press4] = Preprocessing(rawdata)
+    testingData = np.array([axis1, axis3, axis4, axis5, axis6, press1, press2, press3, press4])
+
     testingFeature = np.zeros((testingData.shape[1], 1))
     # Vectorization
     for x in testingData:
@@ -94,7 +94,7 @@ def TestingDataRepresent(dataPool, trainingLabel, testingData):
 
     return testingFeature
 
-def Read(namelist):
+def LoadTrainingData(namelist):
     dataPool = []
     trainingLabel = []
     i = 0
@@ -114,34 +114,45 @@ def Read(namelist):
 
     trainingLabel = trainingLabel * 9
 
-    modelPool, p_tabel, vectorFeature = TrainingModel(dataPool[:4], trainingLabel, dataPool[4])
-    testingFeature = TestingDataRepresent(dataPool[:4], trainingLabel, dataPool[4])
-    Testing(modelPool, p_tabel, vectorFeature)
-    #ser = OpenSerial()
-    #line = ser.readline()
-    #dataList = []
+    # Training Model
+    modelPool, p_tabel, _, _ = TrainingModel(dataPool[:4], trainingLabel)
 
-    #print line
+    # Get intruder data
+    #testingFeature = TestingDataRepresent(dataPool[:4], trainingLabel, dataPool[4])
+    # Append intruder lable on testingLabel
+    #testingLabel.extend([-1 for _ in range(testingFeature.shape[0])])
+    #vectorFeature = np.insert(vectorFeature, vectorFeature.shape[0], testingFeature, axis=0)
+    # Testing 
+    #Testing(modelPool, p_tabel, vectorFeature, testingLabel)
+    return modelPool, p_tabel, dataPool
 
-    #line = ser.readline()
-    #while line:
-    #    print line
+def Run(namelist):
+    modelPool, p_tabel, dataPool = LoadTrainingData(namelist)
+    ser = OpenSerial()
+    line = ser.readline()
+    data = []
 
-    #    line = line.strip()
+    print line
 
-    #    if (line != "Closed"):
-    #        dataList.extend([line])
+    line = ser.readline()
+    while line:
+        print line
 
-    #    if (line == "Closed"):
-    #        writeInFile(name, dataList)
-    #        # Run the Main function
-    #        Run(name)
-    #        dataList = []
+        line = line.strip()
 
-    #    line = ser.readline()
+        if (line != "Closed"):
+            data.extend([line])
+
+        if (line == "Closed"):
+            # Data representation
+            testingFeature = DataRepresent(dataPool, trainingLabel, data)
+            Testing(modelPool, p_tabel, testingFeature)
+            data = []
+
+        line = ser.readline()
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
         print "Usage: python ReadSerial.py <fileName>"
         exit(1)
-    Read([sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5]])
+    Run([sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4]])
