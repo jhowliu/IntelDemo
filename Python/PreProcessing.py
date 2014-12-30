@@ -3,8 +3,6 @@ import numpy as np
 from MovingAvg import MovingAvg
 
 def Preprocessing(rawSeries, n=2):
-
-    print rawSeries.shape
     # Check for series size
     if len(rawSeries.shape) == 1:
         rawSeries = rawSeries.T

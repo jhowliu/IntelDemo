@@ -16,10 +16,11 @@ def OpenSerial():
 
 def TrainingModel(dataPool, trainingLabel):
     params = [[0.00160000000000000, 0.0129746337890625], [0.000400000000000000, 0.00256289062500000], [0.00320000000000000, 0.00384433593750000], [0.0256000000000000, 0.0291929260253906]]
+    testingData = np.zeros((1, 261))
+    testingLabel = []
+    rangeOfData = [0]
     modelPool = []
     p_tabel = []
-    testingLabel = []
-    testingData = np.zeros((1, 261))
 
     # The flag of current person
     currentGuy = 0
@@ -42,30 +43,33 @@ def TrainingModel(dataPool, trainingLabel):
         # Create testing lable
         testingLabel.extend([currentGuy for _ in range(40)])
 
-        # Max-min Normalize
-        scaleRange = np.abs(np.max(vectorFeature, 0) - np.min(vectorFeature, 0))
-        # Max and Min is 0, avoiding to divide by zero
-        scaleRange[scaleRange == 0] = 1
-        vectorFeature = vectorFeature/scaleRange
+        testingData = np.insert(testingData, testingData.shape[0], vectorFeature, 0)
         # Seperate testing and training
         #allIdxSet  = set(range(len(data[0])))
         #testingIdxSet = set(rd.sample(range(len(data[0])), 40))
-        #testingData = np.insert(testingData, testingData.shape[0], vectorFeature[list(testingIdxSet)], 0)
 
         #model, p_val = Training(vectorFeature[list(allIdxSet-testingIdxSet)], params[currentGuy])
-        model, p_val = Training(vectorFeature, params[currentGuy])
+
+        currentGuy +=1
+        rangeOfData.append(rangeOfData[len(rangeOfData)-1] + data.shape[1])
+
+    # Max-Min Normalize
+    scaleRange = np.abs(np.max(testingData, 0) - np.min(testingData, 0))
+    # Max and Min is 0, avoiding to divide by zero
+    scaleRange[scaleRange == 0] = 1
+    testingData = testingData/scaleRange
+
+    for i in range(len(dataPool)):
+        model, p_val = Training(testingData[rangeOfData[i]:rangeOfData[i+1]], params[i])
 
         modelPool.append(model)
         p_tabel.append(p_val)
 
-        currentGuy +=1
-
     testingData = np.delete(testingData, 0, axis=0)
-
     print "Finish"
-    return modelPool, p_tabel, testingData, testingLabel
+    return modelPool, p_tabel, testingData, testingLabel, scaleRange
 
-def DataRepresent(dataPool, trainingLabel, rawdata):
+def DataRepresent(dataPool, trainingLabel, rawdata, scaleRange):
     # Preprocessing
     [axis1, _, axis3, axis4, axis5, axis6, press1, press2, press3, press4] = Preprocessing(rawdata)
     testingData = np.array([axis1, axis3, axis4, axis5, axis6, press1, press2, press3, press4])
@@ -87,9 +91,6 @@ def DataRepresent(dataPool, trainingLabel, rawdata):
         testingFeature = np.insert(testingFeature, testingFeature.shape[1], envelopeResult.T, axis=1)
 
     # Max-min Normalize
-    scaleRange = np.abs(np.max(testingFeature, 0) - np.min(testingFeature, 0))
-    # Max and Min is 0, avoiding to divide by zero
-    scaleRange[scaleRange == 0] = 1
     testingFeature = testingFeature/scaleRange
 
     return testingFeature
@@ -115,7 +116,7 @@ def LoadTrainingData(namelist):
     trainingLabel = trainingLabel * 9
 
     # Training Model
-    modelPool, p_tabel, _, _ = TrainingModel(dataPool[:4], trainingLabel)
+    modelPool, p_tabel, _, _, scaleRange= TrainingModel(dataPool[:4], trainingLabel)
 
     # Get intruder data
     #testingFeature = TestingDataRepresent(dataPool[:4], trainingLabel, dataPool[4])
@@ -124,10 +125,11 @@ def LoadTrainingData(namelist):
     #vectorFeature = np.insert(vectorFeature, vectorFeature.shape[0], testingFeature, axis=0)
     # Testing 
     #Testing(modelPool, p_tabel, vectorFeature, testingLabel)
-    return modelPool, p_tabel, dataPool, trainingLabel
+    return modelPool, p_tabel, dataPool, trainingLabel, scaleRange
 
 def Run(namelist):
-    #modelPool, p_tabel, dataPool, trainingLabel = LoadTrainingData(namelist)
+    modelPool, p_tabel, dataPool, trainingLabel, scaleRange = LoadTrainingData(namelist)
+    currentTime = datetime.now()
     ser = OpenSerial()
     line = ser.readline()
     data = []
@@ -141,12 +143,14 @@ def Run(namelist):
         line = line.strip()
 
         if (line != "Closed"):
-            data.extend([line.split(',')])
+            line = (line + ',14,' + str(currentTime.weekday()+1)).split(',')
+            line = map(lambda x: int(x), line)
+            data.extend([line])
 
         if (line == "Closed"):
-            print np.array(data).shape
             # Data representation
-            testingFeature = DataRepresent(dataPool, trainingLabel, np.array([data]))
+            testingFeature = DataRepresent(dataPool, trainingLabel, np.array(data), scaleRange)
+            print testingFeature.shape
             Testing(modelPool, p_tabel, testingFeature)
             data = []
 

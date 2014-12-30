@@ -20,6 +20,7 @@ def Testing(modelPool, p_table, testingFeature, testingLabel=[]):
     #idx = 0
     for model in modelPool:
         p_label, _, p_val = svm_predict([1 for _ in range(len(testingFeature))], testingFeature.tolist(), model)
+        print p_val
     #    print "No." + str(idx+1) + ": " + name[idx] + "'s Model"
     #    print str(np.sum(np.array(testingLabel)[np.array(p_label) == 1] == idx)) + "/40 " + str(np.sum(np.array(testingLabel)[np.array(p_label)==1] == idx) / 40.)
     #    idx +=1
