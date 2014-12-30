@@ -12,7 +12,7 @@ from Envelope import envelope
 from datetime import datetime
 
 def OpenSerial():
-    return serial.Serial('/dev/ttyACM0', 9600)
+    return serial.Serial('/dev/tty.usbmodem1421', 9600)
 
 def TrainingModel(dataPool, trainingLabel):
     params = [[0.00160000000000000, 0.0129746337890625], [0.000400000000000000, 0.00256289062500000], [0.00320000000000000, 0.00384433593750000], [0.0256000000000000, 0.0291929260253906]]
@@ -84,7 +84,7 @@ def DataRepresent(dataPool, trainingLabel, rawdata):
             tmp.extend(dataPool[i][idx].tolist())
 
         envelopeResult = np.array(envelope(np.array(trainingLabel[idx*len(tmp):(idx+1)*len(tmp)]), tmp, testingData[idx].tolist(), 1))
-        testingFeature = np.insert(testingFeature, testingFeature.shape[1], (envelopeResult/176.).T, axis=1)
+        testingFeature = np.insert(testingFeature, testingFeature.shape[1], envelopeResult.T, axis=1)
 
     # Max-min Normalize
     scaleRange = np.abs(np.max(testingFeature, 0) - np.min(testingFeature, 0))
@@ -124,10 +124,10 @@ def LoadTrainingData(namelist):
     #vectorFeature = np.insert(vectorFeature, vectorFeature.shape[0], testingFeature, axis=0)
     # Testing 
     #Testing(modelPool, p_tabel, vectorFeature, testingLabel)
-    return modelPool, p_tabel, dataPool
+    return modelPool, p_tabel, dataPool, trainingLabel
 
 def Run(namelist):
-    modelPool, p_tabel, dataPool = LoadTrainingData(namelist)
+    #modelPool, p_tabel, dataPool, trainingLabel = LoadTrainingData(namelist)
     ser = OpenSerial()
     line = ser.readline()
     data = []
@@ -141,11 +141,12 @@ def Run(namelist):
         line = line.strip()
 
         if (line != "Closed"):
-            data.extend([line])
+            data.extend([line.split(',')])
 
         if (line == "Closed"):
+            print np.array(data).shape
             # Data representation
-            testingFeature = DataRepresent(dataPool, trainingLabel, data)
+            testingFeature = DataRepresent(dataPool, trainingLabel, np.array([data]))
             Testing(modelPool, p_tabel, testingFeature)
             data = []
 

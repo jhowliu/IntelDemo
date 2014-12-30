@@ -3,9 +3,11 @@ import numpy as np
 from MovingAvg import MovingAvg
 
 def Preprocessing(rawSeries, n=2):
+
+    print rawSeries.shape
     # Check for series size
     if len(rawSeries.shape) == 1:
-        rawSeries = rawSeries.reshape(1, rawSeries.shape[0])
+        rawSeries = rawSeries.T
 
     # Delete peak value (More than 3 standard deviation)
     for idx in range(rawSeries.shape[1]-4):
