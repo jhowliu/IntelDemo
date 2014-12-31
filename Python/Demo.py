@@ -6,9 +6,9 @@ import random as rd
 import numpy as np
 from Processing import Training
 from Processing import Testing
-from PreProcessing import Preprocessing
-from Vectorization import Vectorize
-from Envelope import envelope
+from PreProcessing import Preprocessing 
+from Vectorization import Vectorize 
+from Envelope import envelope 
 from datetime import datetime
 
 def OpenSerial():
@@ -71,7 +71,7 @@ def TrainingModel(dataPool, trainingLabel):
 
 def DataRepresent(dataPool, trainingLabel, rawdata, scaleRange):
     # Preprocessing
-    [axis1, _, axis3, axis4, axis5, axis6, press1, press2, press3, press4] = Preprocessing(rawdata)
+    [axis1, _, axis3, axis4, axis5, axis6, press1, press2, press3, press4] = Preprocessing(rawdata, maxLen=192)
     testingData = np.array([axis1, axis3, axis4, axis5, axis6, press1, press2, press3, press4])
 
     testingFeature = np.zeros((testingData.shape[1], 1))
@@ -103,7 +103,7 @@ def LoadTrainingData(namelist):
     for name in namelist:
         data = np.genfromtxt(name, delimiter=',')
         # Do preprocessing & moving average
-        [axis1, _, axis3, axis4, axis5, axis6, press1, press2, press3, press4] = Preprocessing(data)
+        [axis1, _, axis3, axis4, axis5, axis6, press1, press2, press3, press4] = Preprocessing(data, maxLen=192)
         preproData = np.array([axis1, axis3, axis4, axis5, axis6, press1, press2, press3, press4])
         # Collect data which has been processing
         dataPool.append(preproData)
@@ -127,37 +127,46 @@ def LoadTrainingData(namelist):
     #Testing(modelPool, p_tabel, vectorFeature, testingLabel)
     return modelPool, p_tabel, dataPool, trainingLabel, scaleRange
 
-def Run(namelist):
+def Run(namelist, intruder):
     modelPool, p_tabel, dataPool, trainingLabel, scaleRange = LoadTrainingData(namelist)
     currentTime = datetime.now()
-    ser = OpenSerial()
-    line = ser.readline()
-    data = []
 
-    print line
+    # Use intruder data
+    data = np.genfromtxt(intruder, delimiter=',')
+    # Do preprocessing & moving average
+    testingFeature = DataRepresent(dataPool, trainingLabel, data, scaleRange)
+    # Random sampling
+    testingFeature = testingFeature[rd.sample(range(len(testingFeature)), 20), :]
+    print testingFeature.shape
+    Testing(modelPool, p_tabel, testingFeature)
+    #ser = OpenSerial()
+    #line = ser.readline()
+    #data = []
 
-    line = ser.readline()
-    while line:
-        print line
+    #print line
 
-        line = line.strip()
+    #line = ser.readline()
+    #while line:
+    #    print line
 
-        if (line != "Closed"):
-            line = (line + ',14,' + str(currentTime.weekday()+1)).split(',')
-            line = map(lambda x: int(x), line)
-            data.extend([line])
+    #    line = line.strip()
 
-        if (line == "Closed"):
-            # Data representation
-            testingFeature = DataRepresent(dataPool, trainingLabel, np.array(data), scaleRange)
-            print testingFeature.shape
-            Testing(modelPool, p_tabel, testingFeature)
-            data = []
+    #    if (line != "Closed"):
+    #        line = (line + ',14,' + str(currentTime.weekday()+1)).split(',')
+    #        line = map(lambda x: int(x), line)
+    #        data.extend([line])
 
-        line = ser.readline()
+    #    if (line == "Closed"):
+    #        # Data representation
+    #        testingFeature = DataRepresent(dataPool, trainingLabel, np.array(data), scaleRange)
+    #        print testingFeature.shape
+    #        Testing(modelPool, p_tabel, testingFeature)
+    #        data = []
+
+    #    line = ser.readline()
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
         print "Usage: python ReadSerial.py <fileName>"
         exit(1)
-    Run([sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4]])
+    Run([sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4]], sys.argv[5])
