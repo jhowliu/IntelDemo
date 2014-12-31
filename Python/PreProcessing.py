@@ -2,7 +2,7 @@
 import numpy as np
 from MovingAvg import MovingAvg
 
-def Preprocessing(rawSeries, n=2):
+def Preprocessing(rawSeries, n=2, maxLen=200):
     # Check for series size
     if len(rawSeries.shape) == 1:
         rawSeries = rawSeries.T
@@ -19,7 +19,7 @@ def Preprocessing(rawSeries, n=2):
     idx = np.insert(idx[0], idx[0].shape[0], rawSeries.shape[0])
 
     dataLen = idx[1:]-idx[0:-1]
-    maxLen = np.max(dataLen)-n+1
+    #maxLen = np.max(dataLen)-n+1
 
     axis1  = np.zeros((idx.shape[0]-1, maxLen))
     axis2  = np.zeros((idx.shape[0]-1, maxLen))
