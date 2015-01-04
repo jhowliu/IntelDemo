@@ -4,7 +4,7 @@ import sys
 from datetime import datetime
 
 def OpenSerial():
-    return serial.Serial('/dev/ttyACM0', 9600)
+    return serial.Serial('/dev/tty.usbmodem1421', 9600)
 
 def writeInFile(name, data):
     fileName = name + ".csv"

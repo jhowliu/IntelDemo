@@ -10,7 +10,7 @@ def Vectorize(seriesData):
     dataLength = seriesData.shape[0]
 
     # Feature space
-    vectorFeature = np.zeros((dataLength, 17))
+    vectorFeature = np.zeros((dataLength, 16))
 
     # 1) to 3) min, max mean
     tsMin  = np.min(seriesData, 1)
@@ -67,7 +67,7 @@ def Vectorize(seriesData):
     for idx in range(5):
         vectorFeature[:, 11+idx] = np.mean(seriesData[:, np.floor(segLenth * idx):np.floor(segLenth * (idx+1))], 1)
 
-    vectorFeature[:, 16] = np.sum(np.abs(velocityDiff))
+    #vectorFeature[:, 16] = np.sum(np.abs(velocityDiff))
 
     return vectorFeature.T
 

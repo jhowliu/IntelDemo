@@ -6,9 +6,9 @@ import random as rd
 import numpy as np
 from Processing import Training
 from Processing import Testing
-from PreProcessing import Preprocessing 
-from Vectorization import Vectorize 
-from Envelope import envelope 
+from PreProcessing import Preprocessing
+from Vectorization import Vectorize
+from Envelope import envelope
 from datetime import datetime
 
 def OpenSerial():
@@ -16,7 +16,7 @@ def OpenSerial():
 
 def TrainingModel(dataPool, trainingLabel):
     params = [[0.00160000000000000, 0.0129746337890625], [0.000400000000000000, 0.00256289062500000], [0.00320000000000000, 0.00384433593750000], [0.0256000000000000, 0.0291929260253906]]
-    testingData = np.zeros((1, 261))
+    testingData = np.zeros((1, 252))
     testingLabel = []
     rangeOfData = [0]
     modelPool = []
@@ -60,9 +60,9 @@ def TrainingModel(dataPool, trainingLabel):
     scaleRange[scaleRange == 0] = 1
     testingData = (testingData - scaleMin)/scaleRange
 
-    print np.min(testingData[:153], 0)
-    print np.max(testingData[:153], 0)
-    print np.mean(testingData[:153], 0)
+    #print np.min(testingData[:153], 0)
+    #print np.max(testingData[:153], 0)
+    #print np.mean(testingData[:153], 0)
     for i in range(len(dataPool)):
         model, p_val = Training(testingData[rangeOfData[i]:rangeOfData[i+1]], params[i])
 
@@ -75,7 +75,7 @@ def TrainingModel(dataPool, trainingLabel):
 
 def DataRepresent(dataPool, trainingLabel, rawdata, scaleRange, scaleMin):
     # Preprocessing
-    [axis1, _, axis3, axis4, axis5, axis6, press1, press2, press3, press4] = Preprocessing(rawdata, maxLen=192)
+    [axis1, _, axis3, axis4, axis5, axis6, press1, press2, press3, press4] = Preprocessing(rawdata, maxLen=192, n=5)
     testingData = np.array([axis1, axis3, axis4, axis5, axis6, press1, press2, press3, press4])
 
     testingFeature = np.zeros((testingData.shape[1], 1))
@@ -109,7 +109,7 @@ def LoadTrainingData(namelist):
     for name in namelist:
         data = np.genfromtxt(name, delimiter=',')
         # Do preprocessing & moving average
-        [axis1, _, axis3, axis4, axis5, axis6, press1, press2, press3, press4] = Preprocessing(data, maxLen=192)
+        [axis1, _, axis3, axis4, axis5, axis6, press1, press2, press3, press4] = Preprocessing(data, maxLen=192, n=5)
         preproData = np.array([axis1, axis3, axis4, axis5, axis6, press1, press2, press3, press4])
         # Collect data which has been processing
         dataPool.append(preproData)
@@ -133,12 +133,13 @@ def LoadTrainingData(namelist):
     #Testing(modelPool, p_tabel, vectorFeature, testingLabel)
     return modelPool, p_tabel, dataPool, trainingLabel, scaleRange, scaleMin
 
-def Run(namelist=['~/DataSet/Han.csv', '~/DataSet/jhow.csv', '~/DataSet/jing.csv', '~/DataSet/rick.csv'], intruder='~/DataSet/intruder.csv'):
+def Run(namelist=['~/DataSet/Han.csv', '~/DataSet/jhow.csv', '~/DataSet/jing.csv', '~/DataSet/rick.csv'], intruder='~/DataSet/Intruder.csv'):
     modelPool, p_tabel, dataPool, trainingLabel, scaleRange, scaleMin = LoadTrainingData(namelist)
     currentTime = datetime.now()
 
     # Use intruder data
     data = np.genfromtxt(intruder, delimiter=',')
+    print data.shape
     # Do preprocessing & moving average
     testingFeature = DataRepresent(dataPool, trainingLabel, data, scaleRange, scaleMin)
     # Random sampling
@@ -164,7 +165,7 @@ def Run(namelist=['~/DataSet/Han.csv', '~/DataSet/jhow.csv', '~/DataSet/jing.csv
 
     #    if (line == "Closed"):
     #        # Data representation
-    #        testingFeature = DataRepresent(dataPool, trainingLabel, np.array(data), scaleRange)
+    #        testingFeature = DataRepresent(dataPool, trainingLabel, np.array(data), scaleRange, scaleMin)
     #        print testingFeature.shape
     #        Testing(modelPool, p_tabel, testingFeature)
     #        data = []
