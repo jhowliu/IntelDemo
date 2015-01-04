@@ -55,10 +55,14 @@ def TrainingModel(dataPool, trainingLabel):
 
     # Max-Min Normalize
     scaleRange = np.abs(np.max(testingData, 0) - np.min(testingData, 0))
+    scaleMin = np.min(testingData, 0)
     # Max and Min is 0, avoiding to divide by zero
     scaleRange[scaleRange == 0] = 1
-    testingData = testingData/scaleRange
+    testingData = (testingData - scaleMin)/scaleRange
 
+    print np.min(testingData[:153], 0)
+    print np.max(testingData[:153], 0)
+    print np.mean(testingData[:153], 0)
     for i in range(len(dataPool)):
         model, p_val = Training(testingData[rangeOfData[i]:rangeOfData[i+1]], params[i])
 
@@ -67,9 +71,9 @@ def TrainingModel(dataPool, trainingLabel):
 
     testingData = np.delete(testingData, 0, axis=0)
     print "Finish"
-    return modelPool, p_tabel, testingData, testingLabel, scaleRange
+    return modelPool, p_tabel, testingData, testingLabel, scaleRange, scaleMin
 
-def DataRepresent(dataPool, trainingLabel, rawdata, scaleRange):
+def DataRepresent(dataPool, trainingLabel, rawdata, scaleRange, scaleMin):
     # Preprocessing
     [axis1, _, axis3, axis4, axis5, axis6, press1, press2, press3, press4] = Preprocessing(rawdata, maxLen=192)
     testingData = np.array([axis1, axis3, axis4, axis5, axis6, press1, press2, press3, press4])
@@ -91,11 +95,13 @@ def DataRepresent(dataPool, trainingLabel, rawdata, scaleRange):
         testingFeature = np.insert(testingFeature, testingFeature.shape[1], envelopeResult.T, axis=1)
 
     # Max-min Normalize
-    testingFeature = testingFeature/scaleRange
+    testingFeature = (testingFeature-scaleMin)/scaleRange
+
 
     return testingFeature
 
 def LoadTrainingData(namelist):
+    print namelist
     dataPool = []
     trainingLabel = []
     i = 0
@@ -116,7 +122,7 @@ def LoadTrainingData(namelist):
     trainingLabel = trainingLabel * 9
 
     # Training Model
-    modelPool, p_tabel, _, _, scaleRange= TrainingModel(dataPool[:4], trainingLabel)
+    modelPool, p_tabel, _, _, scaleRange, scaleMin= TrainingModel(dataPool[:4], trainingLabel)
 
     # Get intruder data
     #testingFeature = TestingDataRepresent(dataPool[:4], trainingLabel, dataPool[4])
@@ -125,16 +131,16 @@ def LoadTrainingData(namelist):
     #vectorFeature = np.insert(vectorFeature, vectorFeature.shape[0], testingFeature, axis=0)
     # Testing 
     #Testing(modelPool, p_tabel, vectorFeature, testingLabel)
-    return modelPool, p_tabel, dataPool, trainingLabel, scaleRange
+    return modelPool, p_tabel, dataPool, trainingLabel, scaleRange, scaleMin
 
-def Run(namelist, intruder):
-    modelPool, p_tabel, dataPool, trainingLabel, scaleRange = LoadTrainingData(namelist)
+def Run(namelist=['~/DataSet/Han.csv', '~/DataSet/jhow.csv', '~/DataSet/jing.csv', '~/DataSet/rick.csv'], intruder='~/DataSet/intruder.csv'):
+    modelPool, p_tabel, dataPool, trainingLabel, scaleRange, scaleMin = LoadTrainingData(namelist)
     currentTime = datetime.now()
 
     # Use intruder data
     data = np.genfromtxt(intruder, delimiter=',')
     # Do preprocessing & moving average
-    testingFeature = DataRepresent(dataPool, trainingLabel, data, scaleRange)
+    testingFeature = DataRepresent(dataPool, trainingLabel, data, scaleRange, scaleMin)
     # Random sampling
     testingFeature = testingFeature[rd.sample(range(len(testingFeature)), 20), :]
     print testingFeature.shape
