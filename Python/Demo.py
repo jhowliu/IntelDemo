@@ -15,7 +15,8 @@ def OpenSerial():
     return serial.Serial('/dev/tty.usbmodem1421', 9600)
 
 def TrainingModel(dataPool, trainingLabel):
-    params = [[0.00160000000000000, 0.0129746337890625], [0.000400000000000000, 0.00256289062500000], [0.00320000000000000, 0.00384433593750000], [0.0256000000000000, 0.0291929260253906]]
+    params = [[0.003200000, 0.000759375000], [0.0256000000, 0.0194619506835938], [0.000800000, 0.0656840835571289], [0.025600000, 0.0656840835571289]]
+    #params = [[0.00160000000000000, 0.0129746337890625], [0.000400000000000000, 0.00256289062500000], [0.00320000000000000, 0.00384433593750000], [0.0256000000000000, 0.0291929260253906]]
     testingData = np.zeros((1, 252))
     testingLabel = []
     rangeOfData = [0]
@@ -53,6 +54,12 @@ def TrainingModel(dataPool, trainingLabel):
         currentGuy +=1
         rangeOfData.append(rangeOfData[len(rangeOfData)-1] + data.shape[1])
 
+    testingData = np.delete(testingData, 0, axis=0)
+
+    for i in range(4):
+        writeInFile(testingData[rangeOfData[i]:rangeOfData[i+1]], i)
+
+
     # Max-Min Normalize
     scaleRange = np.abs(np.max(testingData, 0) - np.min(testingData, 0))
     scaleMin = np.min(testingData, 0)
@@ -60,16 +67,12 @@ def TrainingModel(dataPool, trainingLabel):
     scaleRange[scaleRange == 0] = 1
     testingData = (testingData - scaleMin)/scaleRange
 
-    #print np.min(testingData[:153], 0)
-    #print np.max(testingData[:153], 0)
-    #print np.mean(testingData[:153], 0)
     for i in range(len(dataPool)):
         model, p_val = Training(testingData[rangeOfData[i]:rangeOfData[i+1]], params[i])
 
         modelPool.append(model)
         p_tabel.append(p_val)
 
-    testingData = np.delete(testingData, 0, axis=0)
     print "Finish"
     return modelPool, p_tabel, testingData, testingLabel, scaleRange, scaleMin
 
@@ -172,6 +175,15 @@ def Run(namelist=['~/DataSet/Han.csv', '~/DataSet/jhow.csv', '~/DataSet/jing.csv
             data = []
 
         line = ser.readline()
+
+def writeInFile(data, param):
+    name = {0:'Han', 1:'Jhow', 2:'Jing', 3:'Rick'}
+    out = open(name[param] + '.csv', 'w')
+    for line in data.tolist():
+        line = map(lambda x: str(x), line)
+        out.write(','.join(line) + '\n')
+
+    out.close()
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
