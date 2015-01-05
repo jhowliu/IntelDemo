@@ -12,15 +12,18 @@ def Training(data, params):
 
     p_label, p_acc, p_val = svm_predict([1 for _ in range(len(data))], data.tolist(), model)
 
-    p_val = np.array(p_val).reshape(1, len(p_val)).tolist()[0]
-
-    return model, p_val
+    return model, np.max(p_val)
 
 def Testing(modelPool, p_table, testingFeature, testingLabel=[]):
-    #idx = 0
-    for model in modelPool:
-        p_label, _, p_val = svm_predict([1 for _ in range(len(testingFeature))], testingFeature.tolist(), model)
-    #    print p_val[:5]
-    #    print "No." + str(idx+1) + ": " + name[idx] + "'s Model"
-    #    print str(np.sum(np.array(testingLabel)[np.array(p_label) == 1] == idx)) + "/40 " + str(np.sum(np.array(testingLabel)[np.array(p_label)==1] == idx) / 40.)
-    #    idx +=1
+    pVal = -1
+    for feature in testingFeature:
+        idx = 0
+        tmp = []
+        for model in modelPool:
+            p_label, _, p_val = svm_predict([1], [feature.tolist()], model)
+            print p_val[0][0]
+            tmp.append(p_val[0][0]/p_table[idx])
+            idx += 1
+        pVal = np.where(tmp == np.max(tmp))[0]
+
+    return pVal
