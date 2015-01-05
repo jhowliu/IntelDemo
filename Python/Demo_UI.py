@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import pygtk
 pygtk.require('2.0')
 import gtk
@@ -166,3 +167,6 @@ class Base:
 if __name__ == "__main__":
     base = Base()
     base.main()
+=======
+import pygtkpygtk.require('2.0')import gtkimport ReadSerialclass Base:	def __init__(self):		self.window = gtk.Window(gtk.WINDOW_TOPLEVEL)        self.window.set_default_size(640, 480)        self.window.connect("delete_event", gtk.main_quit)        self.hbox_origin = gtk.HBox(spacing = 3)        origin_acc_x = gtk.gdk.pixbuf_new_from_file("test.png")        image_acc_x = gtk.Image()        image_acc_x.set_from_pixbuf(origin_acc_x)        self.hbox_origin.add(image_acc_x)        self.show()	def main(self): 		gtk.main()if __name__ == "main":	base = Base()	base.main()		
+>>>>>>> 8d3e784bdebc91461e8fda71050152ab1d4f111b
