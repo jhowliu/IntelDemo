@@ -1,5 +1,5 @@
 import sys
-sys.path.append('../libsvm/python')
+sys.path.append('./libsvm-3.20/python')
 import numpy as np
 from svmutil import *
 

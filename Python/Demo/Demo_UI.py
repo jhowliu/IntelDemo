@@ -1,12 +1,11 @@
-import sys
 import pygtk
 pygtk.require('2.0')
 import gtk
 from Demo import Run
-class Base:
-    def __init__(self, filename):
-        print "test:" + filename
 
+class Base:
+    def __init__(self):
+        
         self.window = gtk.Window(gtk.WINDOW_TOPLEVEL)
         self.window.set_default_size(640, 480)
         self.window.connect("delete_event", gtk.main_quit)
@@ -169,6 +168,6 @@ if __name__ == "__main__":
     if len(sys.argv) < 2:
         print "Usage: python ReadSerial.py <fileName>"
         exit(1)
-
-    base = Base(sys.argv[1])
+    Run([sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4]], sys.argv[5])
+    base = Base()
     base.main()
