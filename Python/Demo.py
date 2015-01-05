@@ -143,34 +143,35 @@ def Run(namelist=['~/DataSet/Han.csv', '~/DataSet/jhow.csv', '~/DataSet/jing.csv
     # Do preprocessing & moving average
     testingFeature = DataRepresent(dataPool, trainingLabel, data, scaleRange, scaleMin)
     # Random sampling
-    testingFeature = testingFeature[rd.sample(range(len(testingFeature)), 20), :]
+    testingFeature = testingFeature[rd.sample(range(len(testingFeature)), 10), :]
     print testingFeature.shape
-    Testing(modelPool, p_tabel, testingFeature)
-    #ser = OpenSerial()
-    #line = ser.readline()
-    #data = []
+    Testing(modelPool, p_tabel, testingFeature, [-1 for _ in range(len(testingFeature))])
+    ser = OpenSerial()
+    line = ser.readline()
+    data = []
 
-    #print line
+    print line
 
-    #line = ser.readline()
-    #while line:
-    #    print line
+    line = ser.readline()
+    while line:
+        print line
 
-    #    line = line.strip()
+        line = line.strip()
 
-    #    if (line != "Closed"):
-    #        line = (line + ',14,' + str(currentTime.weekday()+1)).split(',')
-    #        line = map(lambda x: int(x), line)
-    #        data.extend([line])
+        if (line != "Closed"):
+            line = (line + ',14,' + str(currentTime.weekday()+1)).split(',')
+            line = map(lambda x: int(x), line)
+            data.extend([line])
 
-    #    if (line == "Closed"):
-    #        # Data representation
-    #        testingFeature = DataRepresent(dataPool, trainingLabel, np.array(data), scaleRange, scaleMin)
-    #        print testingFeature.shape
-    #        Testing(modelPool, p_tabel, testingFeature)
-    #        data = []
+        if (line == "Closed"):
+            # Data representation
+            testingFeature = DataRepresent(dataPool, trainingLabel, np.array(data), scaleRange, scaleMin)
+            print testingFeature.shape
+            pVal = Testing(modelPool, p_tabel, testingFeature, [1])
+            print pVal
+            data = []
 
-    #    line = ser.readline()
+        line = ser.readline()
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
