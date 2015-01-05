@@ -15,8 +15,9 @@ def Training(data, params):
     return model, np.max(p_val)
 
 def Testing(modelPool, p_table, testingFeature, testingLabel=[]):
-    pVal = -1
+    
     for feature in testingFeature:
+        pVal = -1
         idx = 0
         tmp = []
         for model in modelPool:
@@ -24,6 +25,10 @@ def Testing(modelPool, p_table, testingFeature, testingLabel=[]):
             print p_val[0][0]
             tmp.append(p_val[0][0]/p_table[idx])
             idx += 1
-        pVal = np.where(tmp == np.max(tmp))[0]
+        print np.array(tmp)>0
+        if np.sum(np.array(tmp) > 0) != 0:
+            pVal = np.where(tmp == np.max(tmp))[0]
+
+        print pVal
 
     return pVal

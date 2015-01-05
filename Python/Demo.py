@@ -4,6 +4,7 @@ import os.path
 import sys
 import random as rd
 import numpy as np
+from Demo_UI import Setup
 from Processing import Training
 from Processing import Testing
 from PreProcessing import Preprocessing
@@ -12,7 +13,7 @@ from Envelope import envelope
 from datetime import datetime
 
 def OpenSerial():
-    return serial.Serial('/dev/tty.usbmodem1421', 9600)
+    return serial.Serial('/dev/tty.usbmodem1431', 9600)
 
 def TrainingModel(dataPool, trainingLabel):
     params = [[0.00160000000000000, 0.0129746337890625], [0.000400000000000000, 0.00256289062500000], [0.00320000000000000, 0.00384433593750000], [0.0256000000000000, 0.0291929260253906]]
@@ -168,7 +169,8 @@ def Run(namelist=['~/DataSet/Han.csv', '~/DataSet/jhow.csv', '~/DataSet/jing.csv
             testingFeature = DataRepresent(dataPool, trainingLabel, np.array(data), scaleRange, scaleMin)
             print testingFeature.shape
             pVal = Testing(modelPool, p_tabel, testingFeature, [1])
-            print pVal
+            print "pVal:",pVal
+            Setup(pVal)
             data = []
 
         line = ser.readline()
