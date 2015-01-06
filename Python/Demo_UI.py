@@ -1,11 +1,11 @@
-<<<<<<< HEAD
+import sys
 import pygtk
 pygtk.require('2.0')
 import gtk
 
 class Base:
-    def __init__(self):
-        
+    def __init__(self, pVal):
+
         self.window = gtk.Window(gtk.WINDOW_TOPLEVEL)
         self.window.set_default_size(640, 480)
         self.window.connect("delete_event", gtk.main_quit)
@@ -78,95 +78,79 @@ class Base:
         self.hbox_result.add(image_result_picture)
         #Add to hbox 
 
-        # Keep in prediction status.
-        for i in range(1):
-            '''
-            if prediction == 0:
-                self.result_label.set_markup('<span size="20000">Hi, Jhow!</span>')
-            elif prediction == 1:
-                self.result_label.set_markup('<span size="20000">Hi, Han!</span>')
-            elif prediction == 2:
-                self.result_label.set_markup('<span size="20000">Hi, Rick!</span>')
-            elif prediction == 3:
-                self.result_label.set_markup('<span size="20000">Hi, Yo!</span>')
-            else:
-                self.result_label.set_markup('<span size="20000">Intruder!!!!</span>')
-            '''
-            #Prediction result is Han.
-            if i == 0:
-                self.result_label.set_markup('<span size="20000">Hi, Han!</span>')
-                #Read Image
-                result_picture = gtk.gdk.pixbuf_new_from_file("Han.jpg")
-                #Resize Image
-                scaled_result_picture = result_picture.scale_simple(200,200,gtk.gdk.INTERP_BILINEAR)
-                #Set Image on Window
-                image_result_picture.set_from_pixbuf(scaled_result_picture)
-                #Add to hbox
-                
+        print "pval:" + str(pVal)
+        #Prediction result is Han.
+        if pVal == 0:
+            self.result_label.set_markup('<span size="20000">Hi, Han!</span>')
+            #Read Image
+            result_picture = gtk.gdk.pixbuf_new_from_file("Demo/Han.jpg")
+            #Resize Image
+            scaled_result_picture = result_picture.scale_simple(150,150,gtk.gdk.INTERP_BILINEAR)
+            #Set Image on Window
+            image_result_picture.set_from_pixbuf(scaled_result_picture)
+            #Add to hbox
+            
 
-            #Prediction result is Jhow.
-            elif i == 1:
-                self.result_label.set_markup('<span size="20000">Hi, Han!</span>')
-                #Read Image
-                result_picture = gtk.gdk.pixbuf_new_from_file("Han.jpg")
-                #Resize Image
-                scaled_result_picture = result_picture.scale_simple(200,200,gtk.gdk.INTERP_BILINEAR)
-                #Set Image on Window
-                image_result_picture.set_from_pixbuf(scaled_result_picture)
-                #Add to hbox
-                
+        #Prediction result is Jhow.
+        elif pVal == 1:
+            self.result_label.set_markup('<span size="20000">Hi, Jhow!</span>')
+            #Read Image
+            result_picture = gtk.gdk.pixbuf_new_from_file("Demo/jhow.jpg")
+            #Resize Image
+            scaled_result_picture = result_picture.scale_simple(150,150,gtk.gdk.INTERP_BILINEAR)
+            #Set Image on Window
+            image_result_picture.set_from_pixbuf(scaled_result_picture)
+            #Add to hbox
+            
 
-            #Prediction result is Rick.
-            elif i == 2:
-                self.result_label.set_markup('<span size="20000">Hi, Han!</span>')
-                #Read Image
-                result_picture = gtk.gdk.pixbuf_new_from_file("Han.jpg")
-                #Resize Image
-                scaled_result_picture = result_picture.scale_simple(150,150,gtk.gdk.INTERP_BILINEAR)
-                #Set Image on Window
-                image_result_picture.set_from_pixbuf(scaled_result_picture)
-                #Add to hbox
-                
+        #Prediction result is Rick.
+        elif pVal == 2:
+            self.result_label.set_markup('<span size="20000">Hi, Jing!</span>')
+            #Read Image
+            result_picture = gtk.gdk.pixbuf_new_from_file("Demo/jing.jpg")
+            #Resize Image
+            scaled_result_picture = result_picture.scale_simple(150,150,gtk.gdk.INTERP_BILINEAR)
+            #Set Image on Window
+            image_result_picture.set_from_pixbuf(scaled_result_picture)
+            #Add to hbox
+            
 
-            #Prediction result is Yo.
-            elif i == 3:
-                self.result_label.set_markup('<span size="20000">Hi, Han!</span>')
-                #Read Image
-                result_picture = gtk.gdk.pixbuf_new_from_file("Han.jpg")
-                #Resize Image
-                scaled_result_picture = result_picture.scale_simple(150,150,gtk.gdk.INTERP_BILINEAR)
-                #Set Image on Window
-                image_result_picture.set_from_pixbuf(scaled_result_picture)
-                #Add to hbox
-               
+        #Prediction result is Yo.
+        elif pVal == 3:
+            self.result_label.set_markup('<span size="20000">Hi, Rick!</span>')
+            #Read Image
+            result_picture = gtk.gdk.pixbuf_new_from_file("Demo/rick.jpg")
+            #Resize Image
+            scaled_result_picture = result_picture.scale_simple(150,150,gtk.gdk.INTERP_BILINEAR)
+            #Set Image on Window
+            image_result_picture.set_from_pixbuf(scaled_result_picture)
+            #Add to hbox
+           
 
-            #Prediction result is intruder.
-            else:
-                self.result_label.set_markup('<span size="20000">Intruder!</span>')
-                #Read Image
-                result_picture = gtk.gdk.pixbuf_new_from_file("intruder.jpg")
-                #Resize Image
-                scaled_result_picture = result_picture.scale_simple(200,200,gtk.gdk.INTERP_BILINEAR)
-                #Set Image on Window
-                image_result_picture.set_from_pixbuf(scaled_result_picture)
-                #Add to hbox
+        #Prediction result is intruder.
+        elif pVal == -1:
+            self.result_label.set_markup('<span size="20000">Intruder!</span>')
+            #Read Image
+            result_picture = gtk.gdk.pixbuf_new_from_file("Demo/intruder.jpg")
+            #Resize Image
+            scaled_result_picture = result_picture.scale_simple(150,150,gtk.gdk.INTERP_BILINEAR)
+            #Set Image on Window
+            image_result_picture.set_from_pixbuf(scaled_result_picture)
+            #Add to hbox
             
 
             
-            self.vbox_whole.add(self.hbox_welcome)
-            self.vbox_whole.add(self.hbox_result)
-            self.vbox_whole.add(self.hbox_origin)
-            self.window.add(self.vbox_whole)  
-            self.window.show_all()
+        self.vbox_whole.add(self.hbox_welcome)
+        self.vbox_whole.add(self.hbox_result)
+        self.vbox_whole.add(self.hbox_origin)
+        self.window.add(self.vbox_whole)  
+        self.window.show_all()
         
       
     def main(self):
         gtk.main()
 
 
-if __name__ == "__main__":
-    base = Base()
+def Setup(pVal):
+    base = Base(pVal)
     base.main()
-=======
-import pygtkpygtk.require('2.0')import gtkimport ReadSerialclass Base:	def __init__(self):		self.window = gtk.Window(gtk.WINDOW_TOPLEVEL)        self.window.set_default_size(640, 480)        self.window.connect("delete_event", gtk.main_quit)        self.hbox_origin = gtk.HBox(spacing = 3)        origin_acc_x = gtk.gdk.pixbuf_new_from_file("test.png")        image_acc_x = gtk.Image()        image_acc_x.set_from_pixbuf(origin_acc_x)        self.hbox_origin.add(image_acc_x)        self.show()	def main(self): 		gtk.main()if __name__ == "main":	base = Base()	base.main()		
->>>>>>> 8d3e784bdebc91461e8fda71050152ab1d4f111b
