@@ -1,5 +1,5 @@
 import sys
-sys.path.append('./libsvm-3.20/python')
+sys.path.append('../libsvm/python')
 import numpy as np
 from svmutil import *
 
@@ -15,7 +15,6 @@ def Training(data, params):
     return model, np.max(p_val)
 
 def Testing(modelPool, p_table, testingFeature, testingLabel=[]):
-    
     for feature in testingFeature:
         pVal = -1
         idx = 0

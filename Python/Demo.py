@@ -13,7 +13,7 @@ from Envelope import envelope
 from datetime import datetime
 
 def OpenSerial():
-    return serial.Serial('/dev/tty.usbmodem1431', 9600)
+    return serial.Serial('/dev/tty.usbmodem1421', 9600)
 
 def TrainingModel(dataPool, trainingLabel):
     params = [[0.003200000, 0.000759375000], [0.0256000000, 0.0194619506835938], [0.000800000, 0.0656840835571289], [0.025600000, 0.0656840835571289]]
