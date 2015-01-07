@@ -57,9 +57,6 @@ def TrainingModel(dataPool, trainingLabel):
 
     testingData = np.delete(testingData, 0, axis=0)
 
-    for i in range(4):
-        writeInFile(testingData[rangeOfData[i]:rangeOfData[i+1]], i)
-
 
     # Max-Min Normalize
     scaleRange = np.abs(np.max(testingData, 0) - np.min(testingData, 0))
@@ -68,6 +65,9 @@ def TrainingModel(dataPool, trainingLabel):
     scaleRange[scaleRange == 0] = 1
     testingData = (testingData - scaleMin)/scaleRange
 
+    for i in range(4):
+        writeInFile(testingData[rangeOfData[i]:rangeOfData[i+1]], i)
+
     for i in range(len(dataPool)):
         model, p_val = Training(testingData[rangeOfData[i]:rangeOfData[i+1]], params[i])
 
@@ -75,7 +75,7 @@ def TrainingModel(dataPool, trainingLabel):
         p_tabel.append(p_val)
 
     print "Finish"
-    return modelPool, p_tabel, testingData, testingLabel, scaleRange, scaleMin
+    return modelPool, p_tabel, testingData, testingLabel, scaleRange, scaleMin, rangeOfData
 
 def DataRepresent(dataPool, trainingLabel, rawdata, scaleRange, scaleMin):
     # Preprocessing
@@ -126,7 +126,7 @@ def LoadTrainingData(namelist):
     trainingLabel = trainingLabel * 9
 
     # Training Model
-    modelPool, p_tabel, _, _, scaleRange, scaleMin= TrainingModel(dataPool[:4], trainingLabel)
+    modelPool, p_tabel, testingData, _, scaleRange, scaleMin, rangeOfData = TrainingModel(dataPool[:4], trainingLabel)
 
     # Get intruder data
     #testingFeature = TestingDataRepresent(dataPool[:4], trainingLabel, dataPool[4])
@@ -179,7 +179,7 @@ def Run(namelist=['~/DataSet/Han.csv', '~/DataSet/jhow.csv', '~/DataSet/jing.csv
         line = ser.readline()
 
 def writeInFile(data, param):
-    name = {0:'Han', 1:'Jhow', 2:'Jing', 3:'Rick'}
+    name = {0:'Han_feature', 1:'Jhow_feature', 2:'Jing_feature', 3:'Rick_feature'}
     out = open(name[param] + '.csv', 'w')
     for line in data.tolist():
         line = map(lambda x: str(x), line)
