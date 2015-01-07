@@ -57,6 +57,8 @@ def TrainingModel(dataPool, trainingLabel):
 
     testingData = np.delete(testingData, 0, axis=0)
 
+    for i in range(4):
+        writeInFile(testingData[rangeOfData[i]:rangeOfData[i+1]], i)
 
     # Max-Min Normalize
     scaleRange = np.abs(np.max(testingData, 0) - np.min(testingData, 0))
@@ -65,8 +67,6 @@ def TrainingModel(dataPool, trainingLabel):
     scaleRange[scaleRange == 0] = 1
     testingData = (testingData - scaleMin)/scaleRange
 
-    for i in range(4):
-        writeInFile(testingData[rangeOfData[i]:rangeOfData[i+1]], i)
 
     for i in range(len(dataPool)):
         model, p_val = Training(testingData[rangeOfData[i]:rangeOfData[i+1]], params[i])
