@@ -57,7 +57,7 @@ def DataRepresent(dataSet, trainingLabel):
     return trainingFeatures
 
 def Run():
-    dataSet, dataIdx, trainingLabel = Loading(['../../Data/Han.csv', '../../Data/jhow.csv', '../../Data/jing.csv', '../../Data/rick.csv'])
+    dataSet, dataIdx, trainingLabel = Loading(['../../Data/Han.csv', '../../Data/Jhow.csv', '../../Data/Jing.csv', '../../Data/Rick.csv'])
     trainingFeatures = DataRepresent(dataSet, trainingLabel)
 
     return trainingFeatures, dataIdx

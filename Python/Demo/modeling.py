@@ -22,7 +22,7 @@ def SplitFeatures(trainingFeatures, dataIdx):
 
 def Training(trainingFeatures, trainingLabel):
     trainingFeatures = np.insert(trainingFeatures, trainingFeatures.shape[1], trainingLabel, axis=1)
-    print trainingFeatures.shape
+    trainer = Trainer(trainingFeatures, trainingFeatures.shape[1]-1)
 
 def Start():
     trainingFeatures, dataIdx = Run()
