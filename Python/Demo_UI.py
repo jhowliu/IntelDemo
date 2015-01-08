@@ -3,16 +3,14 @@ import pygtk
 pygtk.require('2.0')
 import gtk
 from Demo import *
-
+pictureSize = [300, 300]
 class Base:
     def __init__(self, filename1,filename2,filename3,filename4,filename5):
 
         [modelPool, p_tabel, dataPool, trainingLabel, scaleRange, scaleMin] = Run([filename1,filename2,filename3,filename4], filename5)
         self.window = gtk.Window(gtk.WINDOW_TOPLEVEL)
-        self.window.set_default_size(640, 480)
+        self.window.set_default_size(-1, -1)
         self.window.connect("delete_event", gtk.main_quit)
-
-        
 
         self.hbox_start = gtk.HBox()
         self.hbox_welcome = gtk.HBox()
@@ -33,7 +31,7 @@ class Base:
         #Read Image
         origin_acc_y = gtk.gdk.pixbuf_new_from_file("test.png")
         #Resize Image
-        scaled_acc_y = origin_acc_y.scale_simple(150,150,gtk.gdk.INTERP_BILINEAR)
+        scaled_acc_y = origin_acc_y.scale_simple(pictureSize,150,gtk.gdk.INTERP_BILINEAR)
         #Set Image on Window
         image_acc_y = gtk.Image()
         image_acc_y.set_from_pixbuf(scaled_acc_y)
@@ -50,15 +48,15 @@ class Base:
 
 
         string = "Han\n98.7%"
-        self.model_user2.set_label(string)  
+        self.model_user2.set_label(string)
         self.hbox_origin.add(self.model_user2)
 
         string = "Rick\n10.9%"
-        self.model_user3.set_label(string)  
+        self.model_user3.set_label(string)
         self.hbox_origin.add(self.model_user3)
 
         string = "Yo\n9.7%"
-        self.model_user4.set_label(string)  
+        self.model_user4.set_label(string)
         self.hbox_origin.add(self.model_user4)
 
    
@@ -68,19 +66,17 @@ class Base:
         self.welcome_label.set_use_markup(gtk.TRUE)
         self.welcome_label.set_markup('<span size="25000">Welcome to Intel Smart House!!</span>')
         self.hbox_welcome.add(self.welcome_label)
-        
+
         #Result
         self.result_label = gtk.Label()
         self.result_label.set_use_markup(gtk.TRUE)
         self.result_label.set_markup('<span size="20000">Who are you?</span>')
         self.hbox_result.add(self.result_label)
-        
         #Initial picture
-    
         #Read Image
         result_picture = gtk.gdk.pixbuf_new_from_file("Demo/ques.jpg")
         #Resize Image
-        scaled_result_picture = result_picture.scale_simple(150,150,gtk.gdk.INTERP_BILINEAR)
+        scaled_result_picture = result_picture.scale_simple(pictureSize[0], pictureSize[1],gtk.gdk.INTERP_BILINEAR)
         #Set Image on Window
         image_result_picture = gtk.Image()
         image_result_picture.set_from_pixbuf(scaled_result_picture)
@@ -88,19 +84,15 @@ class Base:
         self.hbox_result.add(image_result_picture)
         #Add to hbox 
 
-        
-
-        self.vbox_whole.add(self.hbox_start)    
+        self.vbox_whole.add(self.hbox_start)
         self.vbox_whole.add(self.hbox_welcome)
         self.vbox_whole.add(self.hbox_result)
         self.vbox_whole.add(self.hbox_origin)
-        self.window.add(self.vbox_whole)  
+        self.window.add(self.vbox_whole)
         self.window.show_all()
         #self.start_button.connect("clicked", gtk.Widget.destroy, "start")
         print "stop here"
-    
-    
-    
+
     def receiving(self, modelPool, p_tabel, dataPool, trainingLabel, scaleRange, scaleMin):
         pVal = Ready(modelPool, p_tabel, dataPool, trainingLabel, scaleRange, scaleMin)
                 #Prediction result is Han.
@@ -109,11 +101,10 @@ class Base:
             #Read Image
             result_picture = gtk.gdk.pixbuf_new_from_file("Demo/Han.jpg")
             #Resize Image
-            scaled_result_picture = result_picture.scale_simple(150,150,gtk.gdk.INTERP_BILINEAR)
+            scaled_result_picture = result_picture.scale_simple(pictureSize[0],pictureSize[1],gtk.gdk.INTERP_BILINEAR)
             #Set Image on Window
             image_result_picture.set_from_pixbuf(scaled_result_picture)
             #Add to hbox
-            
 
         #Prediction result is Jhow.
         elif pVal == 1:
@@ -121,7 +112,7 @@ class Base:
             #Read Image
             result_picture = gtk.gdk.pixbuf_new_from_file("Demo/jhow.jpg")
             #Resize Image
-            scaled_result_picture = result_picture.scale_simple(150,150,gtk.gdk.INTERP_BILINEAR)
+            scaled_result_picture = result_picture.scale_simple(pictureSize[0],pictureSize[1],gtk.gdk.INTERP_BILINEAR)
             #Set Image on Window
             image_result_picture.set_from_pixbuf(scaled_result_picture)
             #Add to hbox
@@ -133,7 +124,7 @@ class Base:
             #Read Image
             result_picture = gtk.gdk.pixbuf_new_from_file("Demo/jing.jpg")
             #Resize Image
-            scaled_result_picture = result_picture.scale_simple(150,150,gtk.gdk.INTERP_BILINEAR)
+            scaled_result_picture = result_picture.scale_simple(pictureSize[0],pictureSize[1],gtk.gdk.INTERP_BILINEAR)
             #Set Image on Window
             image_result_picture.set_from_pixbuf(scaled_result_picture)
             #Add to hbox
@@ -145,11 +136,10 @@ class Base:
             #Read Image
             result_picture = gtk.gdk.pixbuf_new_from_file("Demo/rick.jpg")
             #Resize Image
-            scaled_result_picture = result_picture.scale_simple(150,150,gtk.gdk.INTERP_BILINEAR)
+            scaled_result_picture = result_picture.scale_simple(pictureSize[0],pictureSize[1],gtk.gdk.INTERP_BILINEAR)
             #Set Image on Window
             image_result_picture.set_from_pixbuf(scaled_result_picture)
             #Add to hbox
-           
 
         #Prediction result is intruder.
         elif pVal == -1:
@@ -157,11 +147,11 @@ class Base:
             #Read Image
             result_picture = gtk.gdk.pixbuf_new_from_file("Demo/intruder.jpg")
             #Resize Image
-            scaled_result_picture = result_picture.scale_simple(150,150,gtk.gdk.INTERP_BILINEAR)
+            scaled_result_picture = result_picture.scale_simple(pictureSize[0],pictureSize[1],gtk.gdk.INTERP_BILINEAR)
             #Set Image on Window
             image_result_picture.set_from_pixbuf(scaled_result_picture)
             #Add to hbox
-      
+
     def main(self):
         gtk.main()
 
