@@ -2,18 +2,28 @@ import sys
 import pygtk
 pygtk.require('2.0')
 import gtk
+from Demo import *
 
 class Base:
-    def __init__(self, pVal):
+    def __init__(self, filename1,filename2,filename3,filename4,filename5):
 
+        [modelPool, p_tabel, dataPool, trainingLabel, scaleRange, scaleMin] = Run([filename1,filename2,filename3,filename4], filename5)
         self.window = gtk.Window(gtk.WINDOW_TOPLEVEL)
         self.window.set_default_size(640, 480)
         self.window.connect("delete_event", gtk.main_quit)
+
         
+
+        self.hbox_start = gtk.HBox()
         self.hbox_welcome = gtk.HBox()
         self.hbox_result = gtk.HBox()
         self.hbox_origin = gtk.HBox(spacing = 3)
         self.vbox_whole = gtk.VBox(spacing = 3)
+
+        self.start_button = gtk.Button()
+        #self.start_button.connect("clicked", self.detect(p_tabel), None)
+        self.start_button.connect("clicked", self.receiving(modelPool, p_tabel, dataPool, trainingLabel, scaleRange, scaleMin), "start")
+        self.hbox_start.add(self.start_button)
 
         self.model_user1 = gtk.Label()
         self.model_user2 = gtk.Label()
@@ -68,7 +78,7 @@ class Base:
         #Initial picture
     
         #Read Image
-        result_picture = gtk.gdk.pixbuf_new_from_file("ques.jpg")
+        result_picture = gtk.gdk.pixbuf_new_from_file("Demo/ques.jpg")
         #Resize Image
         scaled_result_picture = result_picture.scale_simple(150,150,gtk.gdk.INTERP_BILINEAR)
         #Set Image on Window
@@ -78,8 +88,22 @@ class Base:
         self.hbox_result.add(image_result_picture)
         #Add to hbox 
 
-        print "pval:" + str(pVal)
-        #Prediction result is Han.
+        
+
+        self.vbox_whole.add(self.hbox_start)    
+        self.vbox_whole.add(self.hbox_welcome)
+        self.vbox_whole.add(self.hbox_result)
+        self.vbox_whole.add(self.hbox_origin)
+        self.window.add(self.vbox_whole)  
+        self.window.show_all()
+        #self.start_button.connect("clicked", gtk.Widget.destroy, "start")
+        print "stop here"
+    
+    
+    
+    def receiving(self, modelPool, p_tabel, dataPool, trainingLabel, scaleRange, scaleMin):
+        pVal = Ready(modelPool, p_tabel, dataPool, trainingLabel, scaleRange, scaleMin)
+                #Prediction result is Han.
         if pVal == 0:
             self.result_label.set_markup('<span size="20000">Hi, Han!</span>')
             #Read Image
@@ -137,20 +161,19 @@ class Base:
             #Set Image on Window
             image_result_picture.set_from_pixbuf(scaled_result_picture)
             #Add to hbox
-            
-
-            
-        self.vbox_whole.add(self.hbox_welcome)
-        self.vbox_whole.add(self.hbox_result)
-        self.vbox_whole.add(self.hbox_origin)
-        self.window.add(self.vbox_whole)  
-        self.window.show_all()
-        
       
     def main(self):
         gtk.main()
 
 
-def Setup(pVal):
-    base = Base(pVal)
+if __name__=='__main__':
+    if len(sys.argv) < 6:
+        print "Usage: <Data>"
+        exit(-1)
+    filename1 = sys.argv[1]
+    filename2 = sys.argv[2] 
+    filename3 = sys.argv[3]
+    filename4 = sys.argv[4]
+    filename5 = sys.argv[5]   
+    base = Base(filename1,filename2,filename3,filename4,filename5)
     base.main()
