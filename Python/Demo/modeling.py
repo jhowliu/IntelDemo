@@ -1,10 +1,12 @@
 import sys
 import numpy as np
+sys.path.append('../')
 sys.path.append('../../SSVM')
-from Setup import Run
-from predictor import Predictor
-from trainer import Trainer
+from Setup import Load
 from sklearn import svm
+from Sampling import OverSampling
+#from predictor import Predictor
+#from trainer import Trainer
 
 # Training model with (1 vs rest) multiclassification. (4 models)
 def SplitFeatures(trainingFeatures, dataIdx):
@@ -22,10 +24,12 @@ def SplitFeatures(trainingFeatures, dataIdx):
 
 def Training(trainingFeatures, trainingLabel):
     trainingFeatures = np.insert(trainingFeatures, trainingFeatures.shape[1], trainingLabel, axis=1)
-    trainer = Trainer(trainingFeatures, trainingFeatures.shape[1]-1)
+    print trainingFeatures.shape
+    print OverSampling(trainingFeatures).shape
+    #trainer = Trainer(trainingFeatures, trainingFeatures.shape[1]-1)
 
 def Start():
-    trainingFeatures, dataIdx = Run()
+    trainingFeatures, dataIdx, trainingLabel = Load()
     AxisVectorFeature, PressVectorFeature, AxisEnvelopeFeature, PressEnvelopeFeature = SplitFeatures(trainingFeatures, dataIdx)
     for feature in [AxisVectorFeature, PressVectorFeature, AxisEnvelopeFeature, PressEnvelopeFeature]:
         for currentGuy in range(4):
