@@ -666,7 +666,7 @@ typedef union accel_t_gyro_union
   } value;
 };
 
-float result[3] = {0, 0, 0};
+float result[3] = {30, 11.8, 100};
 
 void setup()
 {      
@@ -714,7 +714,7 @@ void setup()
   // Clear the 'sleep' bit to start the sensor.
   MPU6050_write_reg (MPU6050_PWR_MGMT_1, 0);
   // First, Collect 100 data.
-  while (counter < 100) {
+  /*while (counter < 100) {
     MPU6050_read (MPU6050_ACCEL_XOUT_H, (uint8_t *) &accel_t_gyro, sizeof(accel_t_gyro));
     
     SWAP (accel_t_gyro.reg.t_h, accel_t_gyro.reg.t_l);
@@ -726,7 +726,7 @@ void setup()
     counter++;
     
     delay(10);
-  }
+  }*/
   
   Serial.print(result[0]); // MEAN
   Serial.print(", ");
