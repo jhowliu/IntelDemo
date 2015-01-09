@@ -56,12 +56,17 @@ def DataRepresent(dataSet, trainingLabel):
 
     return trainingFeatures
 
-def Run():
-    dataSet, dataIdx, trainingLabel = Loading(['../../Data/Han.csv', '../../Data/Jhow.csv', '../../Data/Jing.csv', '../../Data/Rick.csv'])
-    trainingFeatures = DataRepresent(dataSet, trainingLabel)
+def Load(name=[],dataPool=[], trainingLabel=[], param):
+    # Input is a file
+    if param == 0:
+        dataSet, dataIdx, trainingLabel = Loading(['../../Data/Han.csv', '../../Data/Jhow.csv', '../../Data/Jing.csv', '../../Data/Rick.csv'])
+        trainingFeatures = DataRepresent(dataSet, trainingLabel)
+    # Input is a timeseries
+    elif param == 1:
+        trainingFeatures = DataRepresent(dataPool, trainingLabel)
 
-    return trainingFeatures, dataIdx
+    return trainingFeatures, dataIdx, trainingLabel
 
 
 if __name__ == '__main__':
-    Run()
+    Load()
