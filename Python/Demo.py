@@ -14,7 +14,7 @@ from PreProcessing import Preprocessing
 from sklearn.linear_model import LogisticRegression
 
 def OpenSerial():
-    return serial.Serial('/dev/tty.usbmodem1411', 9600)
+    return serial.Serial('/dev/tty.usbmodem1421', 9600)
 
 def TrainingModel(dataPool, trainingLabel):
     #params = [[0.003200000, 0.000759375000], [0.0256000000, 0.0194619506835938], [0.000800000, 0.0656840835571289], [0.025600000, 0.0656840835571289]]
@@ -39,17 +39,16 @@ def TrainingModel(dataPool, trainingLabel):
             vectorFeature = np.insert(vectorFeature, vectorFeature.shape[1], Vectorize(x), axis=1)
         vectorFeature = np.delete(vectorFeature, 0, axis=1)
         # Envelope
-        #for idx in range(9):
-        #    tmp = []
-        #    for i in range(4):
-        #        tmp.extend(dataPool[i][idx].tolist())
+        for idx in range(9):
+            tmp = []
+            for i in range(4):
+                tmp.extend(dataPool[i][idx].tolist())
 
-        #    envelopeResult = np.array(envelope(np.array(trainingLabel[idx*len(tmp):(idx+1)*len(tmp)]), tmp, dataPool[currentGuy][idx], 1))
-        #    vectorFeature = np.insert(vectorFeature, vectorFeature.shape[1], envelopeResult.T, axis=1)
+            envelopeResult = np.array(envelope(np.array(trainingLabel[idx*len(tmp):(idx+1)*len(tmp)]), tmp, dataPool[currentGuy][idx], 1))
+            vectorFeature = np.insert(vectorFeature, vectorFeature.shape[1], envelopeResult.T, axis=1)
 
         # Create testing lable
         testingLabel.extend([currentGuy for _ in range(40)])
-
         testingData = np.insert(testingData, testingData.shape[0], vectorFeature, 0)
 
         currentGuy +=1
@@ -99,13 +98,13 @@ def DataRepresent(dataPool, trainingLabel, rawdata, scaleRange, scaleMin):
     testingFeature = np.delete(testingFeature, 0, axis=1)
 
     # Envelope
-    #for idx in range(9):
-    #    tmp = []
-    #    for i in range(4):
-    #        tmp.extend(dataPool[i][idx].tolist())
+    for idx in range(9):
+        tmp = []
+        for i in range(4):
+            tmp.extend(dataPool[i][idx].tolist())
 
-    #    envelopeResult = np.array(envelope(np.array(trainingLabel[idx*len(tmp):(idx+1)*len(tmp)]), tmp, testingData[idx].tolist(), 1))
-    #    testingFeature = np.insert(testingFeature, testingFeature.shape[1], envelopeResult.T, axis=1)
+        envelopeResult = np.array(envelope(np.array(trainingLabel[idx*len(tmp):(idx+1)*len(tmp)]), tmp, testingData[idx].tolist(), 1))
+        testingFeature = np.insert(testingFeature, testingFeature.shape[1], envelopeResult.T, axis=1)
 
     # Max-min Normalize
     testingFeature = (testingFeature-scaleMin)/scaleRange
