@@ -39,13 +39,13 @@ def TrainingModel(dataPool, trainingLabel):
             vectorFeature = np.insert(vectorFeature, vectorFeature.shape[1], Vectorize(x), axis=1)
         vectorFeature = np.delete(vectorFeature, 0, axis=1)
         # Envelope
-        for idx in range(9):
-            tmp = []
-            for i in range(4):
-                tmp.extend(dataPool[i][idx].tolist())
+        #for idx in range(9):
+        #    tmp = []
+        #    for i in range(4):
+        #        tmp.extend(dataPool[i][idx].tolist())
 
-            envelopeResult = np.array(envelope(np.array(trainingLabel[idx*len(tmp):(idx+1)*len(tmp)]), tmp, dataPool[currentGuy][idx], 1))
-            vectorFeature = np.insert(vectorFeature, vectorFeature.shape[1], envelopeResult.T, axis=1)
+        #    envelopeResult = np.array(envelope(np.array(trainingLabel[idx*len(tmp):(idx+1)*len(tmp)]), tmp, dataPool[currentGuy][idx], 1))
+        #    vectorFeature = np.insert(vectorFeature, vectorFeature.shape[1], envelopeResult.T, axis=1)
 
         # Create testing lable
         testingLabel.extend([currentGuy for _ in range(40)])
@@ -99,13 +99,13 @@ def DataRepresent(dataPool, trainingLabel, rawdata, scaleRange, scaleMin):
     testingFeature = np.delete(testingFeature, 0, axis=1)
 
     # Envelope
-    for idx in range(9):
-        tmp = []
-        for i in range(4):
-            tmp.extend(dataPool[i][idx].tolist())
+    #for idx in range(9):
+    #    tmp = []
+    #    for i in range(4):
+    #        tmp.extend(dataPool[i][idx].tolist())
 
-        envelopeResult = np.array(envelope(np.array(trainingLabel[idx*len(tmp):(idx+1)*len(tmp)]), tmp, testingData[idx].tolist(), 1))
-        testingFeature = np.insert(testingFeature, testingFeature.shape[1], envelopeResult.T, axis=1)
+    #    envelopeResult = np.array(envelope(np.array(trainingLabel[idx*len(tmp):(idx+1)*len(tmp)]), tmp, testingData[idx].tolist(), 1))
+    #    testingFeature = np.insert(testingFeature, testingFeature.shape[1], envelopeResult.T, axis=1)
 
     # Max-min Normalize
     testingFeature = (testingFeature-scaleMin)/scaleRange
@@ -135,8 +135,6 @@ def LoadTrainingData(namelist):
 
     # Training Model
     modelPool, p_pool, p_table, testingData, _, scaleRange, scaleMin, rangeOfData, LogRegPool = TrainingModel(dataPool[:4], trainingLabel)
-
-
     return modelPool, p_pool, dataPool, trainingLabel, scaleRange, scaleMin, LogRegPool
 
 def Run(namelist=['~/DataSet/Han.csv', '~/DataSet/jhow.csv', '~/DataSet/jing.csv', '~/DataSet/rick.csv'], intruder='~/DataSet/Intruder.csv'):
@@ -195,7 +193,6 @@ def Ready(modelPool, p_table, dataPool, trainingLabel, scaleRange, scaleMin, Log
             break
 
         line = ser.readline()
-
 
     return pVal, probs
 

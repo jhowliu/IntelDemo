@@ -3,6 +3,7 @@ import pygtk
 import gobject
 pygtk.require('2.0')
 import gtk
+import time
 from Demo import *
 pictureSize = [500, 500]
 
@@ -72,8 +73,8 @@ class Base:
         self.window.show_all()
 
         while (1):
+            time.sleep(0.2)
             self.scanning()
-
         print "stop here"
 
     def scanning(self):
@@ -138,7 +139,7 @@ class Base:
             #Read Image
             result_picture = gtk.gdk.pixbuf_new_from_file("src/rick.jpg")
             #Resize Image
-            scaled_result_picture = result_picture.scale_simple(pictureSize[0],pictureSize[1],gtk.gdk.INTERP_BILINEAR)
+            scaled_result_picture = result_picture.scale_simple(PictureSize[0],PictureSize[1],gtk.gdk.INTERP_BILINEAR)
             #Set Image on Window
             self.image_result_picture.set_from_pixbuf(scaled_result_picture)
 
@@ -148,7 +149,7 @@ class Base:
             #Read Image
             result_picture = gtk.gdk.pixbuf_new_from_file("src/intruder.jpg")
             #Resize Image
-            scaled_result_picture = result_picture.scale_simple(pictureSize[0],pictureSize[1],gtk.gdk.INTERP_BILINEAR)
+            scaled_result_picture = result_picture.scale_simple(PictureSize[0],PictureSize[1],gtk.gdk.INTERP_BILINEAR)
             #Set Image on Window
             self.image_result_picture.set_from_pixbuf(scaled_result_picture)
         
