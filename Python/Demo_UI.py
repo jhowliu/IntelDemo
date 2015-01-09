@@ -2,6 +2,8 @@ import sys
 import pygtk
 pygtk.require('2.0')
 import gtk
+from multiprocessing import Pool
+
 PictureSize = (500, 500)
 class Base:
     def __init__(self):
@@ -75,6 +77,9 @@ class Base:
         self.vbox_whole.add(self.hbox_origin)
         self.window.add(self.vbox_whole)
         self.window.show_all()
+    def predictor(self, pVal, probs):
+        p = Pool()
+        p.map(self.predict, [pVal, probs])
 
     def predict(self, pVal, probs):
         print "In UI pval:" + str(pVal)
