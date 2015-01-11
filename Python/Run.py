@@ -6,12 +6,12 @@ pygtk.require('2.0')
 import gtk
 import time
 from Demo import *
-from threading import Thread
+import threading
 pictureSize = [400, 400]
 
 class Base(threading.Thread):
     def __init__(self, filename1,filename2,filename3,filename4,filename5):
-        threading.Thread.__init__(self)
+        #threading.Thread.__init__(self)
         [self.modelPool, self.p_table, self.dataPool, self.trainingLabel, self.scaleRange, self.scaleMin, self.LogRegPool] = Run([filename1,filename2,filename3,filename4], filename5)
         self.window = gtk.Window(gtk.WINDOW_TOPLEVEL)
         self.window.maximize()
@@ -45,9 +45,8 @@ class Base(threading.Thread):
         self.hbox_origin.add(self.model_user4)
 
 
-       
         #Welcome String
-        self.welcome_label = gtk.Label()      
+        self.welcome_label = gtk.Label()
         self.welcome_label.set_use_markup(gtk.TRUE)
         self.welcome_label.set_markup('<span size="50000">Welcome to Intel Smart House!!</span>')
         self.hbox_welcome.add(self.welcome_label)
@@ -74,14 +73,12 @@ class Base(threading.Thread):
         self.window.add(self.vbox_whole)
         self.window.show_all()
 
-
+        self.run()
     def run(self):
-        while gtk.events_pending():
-            gtk.main_iteration(False)
+        print "HO"
 
-        self.welcome_label.set_markup('<span size="20000">Detecting!!</span>')
-
-        Ready(self.modelPool, self.p_table, self.dataPool, self.trainingLabel, self.scaleRange, self.scaleMin, self.LogRegPool, self)
+        t = threading.Thread(target=Ready, args=(self.modelPool, self.p_table, self.dataPool, self.trainingLabel, self.scaleRange, self.scaleMin, self.LogRegPool, self))
+        t.start()
 
     def predict(self, pval, probs):
 
@@ -156,8 +153,9 @@ class Base(threading.Thread):
 
     def ok(self):
         self.welcome_label.set_markup('<span size="100000" color="green">Ready....</span>')
-        while gtk.events_pending():
-            gtk.main_iteration(False)
+        #while gtk.events_pending():
+        #    gtk.main_iteration(False)
+        self.threadingGk
 
     def main(self):
         gtk.main()
@@ -172,5 +170,5 @@ if __name__=='__main__':
     filename3 = sys.argv[3]
     filename4 = sys.argv[4]
     filename5 = sys.argv[5]
-    thread = Base(filename1,filename2,filename3,filename4,filename5)
-    thread.start()
+    window = Base(filename1,filename2,filename3,filename4,filename5)
+    window.main()

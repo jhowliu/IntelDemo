@@ -154,6 +154,7 @@ def Run(namelist=['~/DataSet/Han.csv', '~/DataSet/jhow.csv', '~/DataSet/jing.csv
     return modelPool, p_tabel, dataPool, trainingLabel, scaleRange, scaleMin, LogRegPool
 
 def Ready(modelPool, p_table, dataPool, trainingLabel, scaleRange, scaleMin, LogRegPool, ui):
+    print "Ready"
     currentTime = datetime.now()
     ser = OpenSerial()
     line = ser.readline()
@@ -161,7 +162,6 @@ def Ready(modelPool, p_table, dataPool, trainingLabel, scaleRange, scaleMin, Log
 
     print line
 
-    ui.ok()
     line = ser.readline()
     while line:
         print line
