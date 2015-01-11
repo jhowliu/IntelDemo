@@ -26,14 +26,15 @@ def Testing(LogRegPool, modelPool, p_table, testingFeature, testingLabel=[]):
             tmp.append(p_val[0][0]/p_table[idx])
             idx += 1
 
-        if np.max(tmp_probs) > 0.5:
-            pVal = np.where(tmp_probs == np.max(tmp_probs))[0][0]
+        if np.sum(np.array(tmp) > 0) != 0:
+            pVal = np.where(tmp == np.max(tmp))[0][0]
+
+        if np.max(tmp_probs) > 0.5 and pVal == -1:
+            tmp_probs[tmp_probs==np.max(tmp_probs)] -= 0.5
 
         for x in tmp_probs.tolist():
             probs.append((str(np.around(x * 100, decimals=3)) + '%' , str(np.around(x / (np.sum(np.array(tmp_probs))) * 100, decimals=3)) + '%'))
 
-        #if np.sum(np.array(tmp) > 0) != 0:
-        #    pVal = np.where(tmp == np.max(tmp))[0][0]
 
         print pVal
 
