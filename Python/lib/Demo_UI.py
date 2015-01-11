@@ -20,6 +20,11 @@ class Base(threading.Thread):
         self.hbox_result = gtk.HBox()
         self.hbox_origin = gtk.HBox(spacing = 3)
         self.vbox_whole = gtk.VBox(spacing = 3)
+        
+        self.user1_hbox = gtk.HBox()
+        self.user2_hbox = gtk.HBox()
+        self.user3_hbox = gtk.HBox()
+        self.user4_hbox = gtk.HBox()
 
         self.model_user1 = gtk.Label()
         self.model_user2 = gtk.Label()
@@ -28,20 +33,52 @@ class Base(threading.Thread):
 
         string = "Han\n\n 0 % \n\n 0 %"
         self.model_user1.set_label(string)
-        self.hbox_origin.add(self.model_user1)
+        result_picture = gtk.gdk.pixbuf_new_from_file("src/han.jpg")
+        #Resize Image
+        scaled_result_picture = result_picture.scale_simple(100, 100,gtk.gdk.INTERP_BILINEAR)
+        #Set Image on Window
+        user1_image = gtk.Image()
+        user1_image.set_from_pixbuf(scaled_result_picture)
+        self.user1_hbox.add(user1_image)
+        self.user1_hbox.add(self.model_user1)
+        self.hbox_origin.add(self.user1_hbox)
 
 
         string = "Jhow\n\n 0 % \n\n 0 %"
         self.model_user2.set_label(string)
-        self.hbox_origin.add(self.model_user2)
+        result_picture = gtk.gdk.pixbuf_new_from_file("src/jhow.jpg")
+        #Resize Image
+        scaled_result_picture = result_picture.scale_simple(100, 100,gtk.gdk.INTERP_BILINEAR)
+        #Set Image on Window
+        user2_image = gtk.Image()
+        user2_image.set_from_pixbuf(scaled_result_picture)
+        self.user2_hbox.add(user2_image)
+        self.user2_hbox.add(self.model_user2)
+        self.hbox_origin.add(self.user2_hbox)
 
         string = "Jing\n\n 0 % \n\n 0 %"
         self.model_user3.set_label(string)
-        self.hbox_origin.add(self.model_user3)
+        result_picture = gtk.gdk.pixbuf_new_from_file("src/jing.jpg")
+        #Resize Image
+        scaled_result_picture = result_picture.scale_simple(100, 100,gtk.gdk.INTERP_BILINEAR)
+        #Set Image on Window
+        user3_image = gtk.Image()
+        user3_image.set_from_pixbuf(scaled_result_picture)
+        self.user3_hbox.add(user3_image)
+        self.user3_hbox.add(self.model_user3)
+        self.hbox_origin.add(self.user3_hbox)
 
         string = "Rick\n\n 0 % \n\n 0 %"
         self.model_user4.set_label(string)
-        self.hbox_origin.add(self.model_user4)
+        result_picture = gtk.gdk.pixbuf_new_from_file("src/rick.jpg")
+        #Resize Image
+        scaled_result_picture = result_picture.scale_simple(100, 100,gtk.gdk.INTERP_BILINEAR)
+        #Set Image on Window
+        user4_image = gtk.Image()
+        user4_image.set_from_pixbuf(scaled_result_picture)
+        self.user4_hbox.add(user4_image)
+        self.user4_hbox.add(self.model_user4)
+        self.hbox_origin.add(self.user4_hbox)
 
 
         #Welcome String
@@ -138,7 +175,10 @@ class Base(threading.Thread):
             #Set Image on Window
             self.image_result_picture.set_from_pixbuf(scaled_result_picture)
 
-        self.welcome_label.set_markup('<span size="100000" color="red">Waiting....</span>')
+        if pVal == -1:
+            self.welcome_label.set_markup('<span size="100000" color="red">Warning!!</span>')
+        else:
+            self.welcome_label.set_markup('<span size="100000" color="green">Welcom To Smart Home!!</span>')
 
         while gtk.events_pending():
             gtk.main_iteration(False)
@@ -146,16 +186,3 @@ class Base(threading.Thread):
 
     def main(self):
         gtk.main()
-
-
-if __name__=='__main__':
-    if len(sys.argv) < 6:
-        print "Usage: <Data>"
-        exit(-1)
-    filename1 = sys.argv[1]
-    filename2 = sys.argv[2]
-    filename3 = sys.argv[3]
-    filename4 = sys.argv[4]
-    filename5 = sys.argv[5]
-    window = Base(filename1,filename2,filename3,filename4,filename5)
-    window.main()
