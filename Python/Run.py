@@ -137,26 +137,11 @@ def LoadTrainingData(namelist):
 
     # Training Model
     modelPool, p_pool, p_table, testingData, _, scaleRange, scaleMin, rangeOfData, LogRegPool = TrainingModel(dataPool[:4], trainingLabel)
+
     return modelPool, p_pool, dataPool, trainingLabel, scaleRange, scaleMin, LogRegPool
 
-def Train(namelist=['~/DataSet/Han.csv', '~/DataSet/jhow.csv', '~/DataSet/jing.csv', '~/DataSet/rick.csv']):
-    modelPool, p_tabel, dataPool, trainingLabel, scaleRange, scaleMin, LogRegPool = LoadTrainingData(namelist)
-
-    ## Use intruder data
-    #data = np.genfromtxt(intruder, delimiter=',')
-    #print data.shape
-    ## Do preprocessing & moving average
-    #testingFeature = DataRepresent(dataPool, trainingLabel, data, scaleRange, scaleMin)
-    ## Random sampling
-    #testingFeature = testingFeature[rd.sample(range(len(testingFeature)), 1), :]
-    #print testingFeature.shape
-    #Testing(LogRegPool, modelPool, p_tabel, testingFeature, [-1 for _ in range(len(testingFeature))])
-    #print "finish"
-
-    return modelPool, p_tabel, dataPool, trainingLabel, scaleRange, scaleMin, LogRegPool
-
 def Run(namelist):
-    modelPool, p_table, dataPool, trainingLabel, scaleRange, scaleMin, LogRegPool = Train(namelist)
+    modelPool, p_table, dataPool, trainingLabel, scaleRange, scaleMin, LogRegPool = LoadTrainingData(namelist)
     print "Ready"
     currentTime = datetime.now()
     ser = OpenSerial()
