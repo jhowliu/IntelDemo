@@ -8,7 +8,7 @@ import time
 from Demo import *
 pictureSize = [500, 500]
 
-class Base:
+class Base(threading.Thread):
     def __init__(self, filename1,filename2,filename3,filename4,filename5):
         threading.Thread.__init__(self)
         [self.modelPool, self.p_table, self.dataPool, self.trainingLabel, self.scaleRange, self.scaleMin, self.LogRegPool] = Run([filename1,filename2,filename3,filename4], filename5)
@@ -172,4 +172,5 @@ if __name__=='__main__':
     filename3 = sys.argv[3]
     filename4 = sys.argv[4]
     filename5 = sys.argv[5]
-    base = Base(filename1,filename2,filename3,filename4,filename5)
+    thread = Base(filename1,filename2,filename3,filename4,filename5)
+    thread.start()
