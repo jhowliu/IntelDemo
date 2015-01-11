@@ -10,7 +10,7 @@ pictureSize = [500, 500]
 
 class Base:
     def __init__(self, filename1,filename2,filename3,filename4,filename5):
-
+        threading.Thread.__init__(self)
         [self.modelPool, self.p_table, self.dataPool, self.trainingLabel, self.scaleRange, self.scaleMin, self.LogRegPool] = Run([filename1,filename2,filename3,filename4], filename5)
         self.window = gtk.Window(gtk.WINDOW_TOPLEVEL)
         self.window.maximize()
@@ -73,22 +73,16 @@ class Base:
         self.window.add(self.vbox_whole)
         self.window.show_all()
 
-        while (1):
-            time.sleep(0.2)
-            self.scanning()
-        print "stop here"
 
-    def scanning(self):
+    def run(self):
         while gtk.events_pending():
             gtk.main_iteration(False)
 
         self.welcome_label.set_markup('<span size="20000">Detecting!!</span>')
-        self.receiving()
 
-        return True
+        Ready(self.modelPool, self.p_table, self.dataPool, self.trainingLabel, self.scaleRange, self.scaleMin, self.LogRegPool, self)
 
-    def receiving(self):
-        pVal, probs = Ready(self.modelPool, self.p_table, self.dataPool, self.trainingLabel, self.scaleRange, self.scaleMin, self.LogRegPool, self)
+    def predict(self, pval, probs):
 
         if pVal != -2:
             string = "Han\n\n" + str(probs[0][0]) + "\n\n" + str(probs[0][1])
