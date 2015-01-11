@@ -31,8 +31,9 @@ class Base(threading.Thread):
         self.model_user3 = gtk.Label()
         self.model_user4 = gtk.Label()
 
-        string = "Han\n\n 0 % \n\n 0 %"
-        self.model_user1.set_label(string)
+        #string = "Han\n\n 0 % \n\n 0 %"
+        #self.model_user1.set_label(string)
+        self.model_user1.set_use_markup(gtk.TRUE)
         result_picture = gtk.gdk.pixbuf_new_from_file("src/han.jpg")
         #Resize Image
         scaled_result_picture = result_picture.scale_simple(100, 100,gtk.gdk.INTERP_BILINEAR)
@@ -44,8 +45,7 @@ class Base(threading.Thread):
         self.hbox_origin.add(self.user1_hbox)
 
 
-        string = "Jhow\n\n 0 % \n\n 0 %"
-        self.model_user2.set_label(string)
+        self.model_user2.set_use_markup(gtk.TRUE)
         result_picture = gtk.gdk.pixbuf_new_from_file("src/jhow.jpg")
         #Resize Image
         scaled_result_picture = result_picture.scale_simple(100, 100,gtk.gdk.INTERP_BILINEAR)
@@ -56,8 +56,7 @@ class Base(threading.Thread):
         self.user2_hbox.add(self.model_user2)
         self.hbox_origin.add(self.user2_hbox)
 
-        string = "Jing\n\n 0 % \n\n 0 %"
-        self.model_user3.set_label(string)
+        self.model_user3.set_use_markup(gtk.TRUE)
         result_picture = gtk.gdk.pixbuf_new_from_file("src/jing.jpg")
         #Resize Image
         scaled_result_picture = result_picture.scale_simple(100, 100,gtk.gdk.INTERP_BILINEAR)
@@ -68,8 +67,7 @@ class Base(threading.Thread):
         self.user3_hbox.add(self.model_user3)
         self.hbox_origin.add(self.user3_hbox)
 
-        string = "Rick\n\n 0 % \n\n 0 %"
-        self.model_user4.set_label(string)
+        self.model_user4.set_use_markup(gtk.TRUE)
         result_picture = gtk.gdk.pixbuf_new_from_file("src/rick.jpg")
         #Resize Image
         scaled_result_picture = result_picture.scale_simple(100, 100,gtk.gdk.INTERP_BILINEAR)
@@ -112,17 +110,19 @@ class Base(threading.Thread):
     def predict(self, pVal, probs):
         print "pVal: ", pVal
         if pVal != -2:
-            string = "Han\n\n" + str(probs[0][0]) + "\n\n" + str(probs[0][1])
-            self.model_user1.set_label(string)
 
-            string = "Jhow\n\n" + str(probs[1][0]) + "\n\n" + str(probs[1][1])
-            self.model_user2.set_label(string)
+            string = '<span size="25000">Han\n\n' + str(probs[0][0]) + '\n\n' + str(probs[0][1]) + '</span>'
+            self.model_user1.set_markup(string)
+            self.welcome_label.set_markup('<span size="50000">Welcome to Intel Smart House!!</span>')
 
-            string = "Jing\n\n" + str(probs[2][0]) + "\n\n" + str(probs[2][1])
-            self.model_user3.set_label(string)
+            string = '<span size="25000">Jhow\n\n' + str(probs[1][0]) + '\n\n' + str(probs[1][1]) + '</span>'
+            self.model_user2.set_markup(string)
 
-            string = "Rick\n\n" + str(probs[3][0]) + "\n\n" + str(probs[3][1])
-            self.model_user4.set_label(string)
+            string = '<span size="25000">Jing\n\n' + str(probs[2][0]) + '\n\n' + str(probs[2][1]) + '</span>'
+            self.model_user3.set_markup(string)
+
+            string = '<span size="25000">Rick\n\n' + str(probs[3][0]) + '\n\n' + str(probs[3][1]) + '</span>'
+            self.model_user4.set_markup(string)
 
         #Prediction result is Han.
         if pVal == 0:
