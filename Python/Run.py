@@ -6,7 +6,8 @@ pygtk.require('2.0')
 import gtk
 import time
 from Demo import *
-pictureSize = [500, 500]
+from threading import Thread
+pictureSize = [400, 400]
 
 class Base:
     def __init__(self, filename1,filename2,filename3,filename4,filename5):
@@ -160,7 +161,6 @@ class Base:
             gtk.main_iteration(False)
 
     def ok(self):
-        print "OK"
         self.welcome_label.set_markup('<span size="100000" color="green">Ready....</span>')
         while gtk.events_pending():
             gtk.main_iteration(False)
