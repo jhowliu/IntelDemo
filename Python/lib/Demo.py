@@ -185,7 +185,7 @@ def Ready(modelPool, p_table, dataPool, trainingLabel, scaleRange, scaleMin, Log
                 testingFeature = DataRepresent(dataPool, trainingLabel, np.array(data), scaleRange, scaleMin)
                 print testingFeature.shape
                 pVal, probs = Testing(LogRegPool, modelPool, p_table, testingFeature, [1])
-                print "pVal:", pVal
+                ui.predict(pVal, probs)
             else:
                 # Do nothing
                 pVal = -2
