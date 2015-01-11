@@ -142,21 +142,21 @@ def LoadTrainingData(namelist):
 def Train(namelist=['~/DataSet/Han.csv', '~/DataSet/jhow.csv', '~/DataSet/jing.csv', '~/DataSet/rick.csv']):
     modelPool, p_tabel, dataPool, trainingLabel, scaleRange, scaleMin, LogRegPool = LoadTrainingData(namelist)
 
-    # Use intruder data
-    data = np.genfromtxt(intruder, delimiter=',')
-    print data.shape
-    # Do preprocessing & moving average
-    testingFeature = DataRepresent(dataPool, trainingLabel, data, scaleRange, scaleMin)
-    # Random sampling
-    testingFeature = testingFeature[rd.sample(range(len(testingFeature)), 1), :]
-    print testingFeature.shape
-    Testing(LogRegPool, modelPool, p_tabel, testingFeature, [-1 for _ in range(len(testingFeature))])
-    print "finish"
+    ## Use intruder data
+    #data = np.genfromtxt(intruder, delimiter=',')
+    #print data.shape
+    ## Do preprocessing & moving average
+    #testingFeature = DataRepresent(dataPool, trainingLabel, data, scaleRange, scaleMin)
+    ## Random sampling
+    #testingFeature = testingFeature[rd.sample(range(len(testingFeature)), 1), :]
+    #print testingFeature.shape
+    #Testing(LogRegPool, modelPool, p_tabel, testingFeature, [-1 for _ in range(len(testingFeature))])
+    #print "finish"
 
     return modelPool, p_tabel, dataPool, trainingLabel, scaleRange, scaleMin, LogRegPool
 
 def Run(namelist):
-    modelPool, p_table, dataPool, trainingLabel, scaleMin, scaleMin, LogRegPool = Train(namelist)
+    modelPool, p_table, dataPool, trainingLabel, scaleRange, scaleMin, LogRegPool = Train(namelist)
     print "Ready"
     currentTime = datetime.now()
     ser = OpenSerial()
@@ -176,7 +176,6 @@ def Run(namelist):
             if len(line) != 13:
                 pVal = -2
                 probs =[]
-                break
             line = map(lambda x: int(x), line)
             data.extend([line])
 
@@ -189,12 +188,12 @@ def Run(namelist):
                 print testingFeature.shape
                 pVal, probs = Testing(LogRegPool, modelPool, p_table, testingFeature, [1])
                 base.predict(pVal, probs)
+                data =[]
             else:
                 # Do nothing
                 pVal = -2
                 probs =[]
                 data = []
-            break
 
         line = ser.readline()
 

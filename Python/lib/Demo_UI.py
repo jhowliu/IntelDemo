@@ -71,13 +71,9 @@ class Base(threading.Thread):
         self.vbox_whole.add(self.hbox_origin)
         self.window.add(self.vbox_whole)
         self.window.show_all()
-        counter = 0
-        while counter < 100:
-            time.sleep(1)
-            print counter
-            counter+= 1
-    def predict(self, pval, probs):
 
+    def predict(self, pVal, probs):
+        print "pVal: ", pVal
         if pVal != -2:
             string = "Han\n\n" + str(probs[0][0]) + "\n\n" + str(probs[0][1])
             self.model_user1.set_label(string)
