@@ -16,15 +16,15 @@ from PreProcessing import Preprocessing
 from sklearn.linear_model import LogisticRegression
 
 def OpenSerial():
-    return serial.Serial('/dev/tty.usbmodem1421', 9600)
+    return serial.Serial('/dev/tty.usbmodem1431', 9600)
 
 def TrainingModel(dataPool, trainingLabel):
     #params = [[0.003200000, 0.000759375000], [0.0256000000, 0.0194619506835938], [0.000800000, 0.0656840835571289], [0.025600000, 0.0656840835571289]]
     #params =[[0.00320000000000000, 0.00864975585937500], [0.025600000000000000, 0.019461950683593], [0.000800000000000000, 0.05], [0.0512000000000000, 0.0656840835571289]]
     #params = [[0.0128000000000000, 0.00576650390625000], [0.000800000000000000, 0.0437893890380859], [0.000200000000000000, 0.0656840835571289], [0.0128000000000000, 0.000225000000000000]]
-    params = [[0.000200000000000000, 0.0229746337890625], [0.0128000000000000, 0.000637500000000000], [0.00320000000000000, 0.00113906250000000], [0.00640000000000000,0.00170859375000000]]
+    params = [[0.0759375000000000, 0.000400000000000000], [0.0759375000000000, 0.0512000000000000], [0.0759375000000000, 0.102400000000000], [0.0759375000000000,0.0256000000000000]]
 
-    testingData = np.zeros((1, 252))
+    testingData = np.zeros((1, 140))
     testingLabel = []
     rangeOfData = [0]
     modelPool = []
@@ -42,7 +42,7 @@ def TrainingModel(dataPool, trainingLabel):
             vectorFeature = np.insert(vectorFeature, vectorFeature.shape[1], Vectorize(x), axis=1)
         vectorFeature = np.delete(vectorFeature, 0, axis=1)
         # Envelope
-        for idx in range(9):
+        for idx in range(5):
             tmp = []
             for i in range(4):
                 tmp.extend(dataPool[i][idx].tolist())
@@ -90,8 +90,8 @@ def TrainingModel(dataPool, trainingLabel):
 
 def DataRepresent(dataPool, trainingLabel, rawdata, scaleRange, scaleMin):
     # Preprocessing
-    [axis1, _, axis3, axis4, axis5, axis6, press1, press2, press3, press4] = Preprocessing(rawdata, maxLen=192, n=5)
-    testingData = np.array([axis1, axis3, axis4, axis5, axis6, press1, press2, press3, press4])
+    [axis1, _, axis3, axis4, axis5, axis6] = Preprocessing(rawdata, maxLen=192, n=5)
+    testingData = np.array([axis1, axis3, axis4, axis5, axis6])
 
     testingFeature = np.zeros((testingData.shape[1], 1))
     # Vectorization
@@ -101,7 +101,7 @@ def DataRepresent(dataPool, trainingLabel, rawdata, scaleRange, scaleMin):
     testingFeature = np.delete(testingFeature, 0, axis=1)
 
     # Envelope
-    for idx in range(9):
+    for idx in range(5):
         tmp = []
         for i in range(4):
             tmp.extend(dataPool[i][idx].tolist())
@@ -123,8 +123,9 @@ def LoadTrainingData(namelist):
     for name in namelist:
         data = np.genfromtxt(name, delimiter=',')
         # Do preprocessing & moving average
-        [axis1, _, axis3, axis4, axis5, axis6, press1, press2, press3, press4] = Preprocessing(data, maxLen=192, n=5)
-        preproData = np.array([axis1, axis3, axis4, axis5, axis6, press1, press2, press3, press4])
+        [axis1, _, axis3, axis4, axis5, axis6] = Preprocessing(data, maxLen=192, n=5)
+        print 'finish preprocessing without pressure\n'
+        preproData = np.array([axis1, axis3, axis4, axis5, axis6])
         # Collect data which has been processing
         dataPool.append(preproData)
         # Create training label
@@ -137,6 +138,7 @@ def LoadTrainingData(namelist):
 
     # Training Model
     modelPool, p_pool, p_table, testingData, _, scaleRange, scaleMin, rangeOfData, LogRegPool = TrainingModel(dataPool[:4], trainingLabel)
+    print "finishing training Model without pressure"
     return modelPool, p_pool, dataPool, trainingLabel, scaleRange, scaleMin, LogRegPool
 
 def Train(namelist=['~/DataSet/Han.csv', '~/DataSet/jhow.csv', '~/DataSet/jing.csv', '~/DataSet/rick.csv']):
