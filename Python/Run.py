@@ -19,12 +19,9 @@ def OpenSerial():
     return serial.Serial('/dev/tty.usbmodem1421', 9600)
 
 def TrainingModel(dataPool, trainingLabel):
-    #params = [[0.003200000, 0.000759375000], [0.0256000000, 0.0194619506835938], [0.000800000, 0.0656840835571289], [0.025600000, 0.0656840835571289]]
-    #params =[[0.00320000000000000, 0.00864975585937500], [0.025600000000000000, 0.019461950683593], [0.000800000000000000, 0.05], [0.0512000000000000, 0.0656840835571289]]
-    #params = [[0.0128000000000000, 0.00576650390625000], [0.000800000000000000, 0.0437893890380859], [0.000200000000000000, 0.0656840835571289], [0.0128000000000000, 0.000225000000000000]]
     params = [[0.000200000000000000, 0.0229746337890625], [0.0128000000000000, 0.000637500000000000], [0.00320000000000000, 0.00113906250000000], [0.00640000000000000,0.00170859375000000]]
 
-    testingData = np.zeros((1, 252))
+    testingData = np.zeros((1, 96))
     testingLabel = []
     rangeOfData = [0]
     modelPool = []
@@ -37,30 +34,35 @@ def TrainingModel(dataPool, trainingLabel):
     for data in dataPool:
         # Vectorization
         vectorFeature = np.zeros((data.shape[1], 1))
-        # Combine vectorize features of all attribute. (Dimension = n * 153)
+        # Combine vectorize features of all axis. (Dimension = n * 153)
         for x in data:
             vectorFeature = np.insert(vectorFeature, vectorFeature.shape[1], Vectorize(x), axis=1)
         vectorFeature = np.delete(vectorFeature, 0, axis=1)
+        print vectorFeature.shape
+
         # Envelope
-        for idx in range(9):
+        '''
+        for idx in range(5):
             tmp = []
             for i in range(4):
                 tmp.extend(dataPool[i][idx].tolist())
 
             envelopeResult = np.array(envelope(np.array(trainingLabel[idx*len(tmp):(idx+1)*len(tmp)]), tmp, dataPool[currentGuy][idx], 1))
             vectorFeature = np.insert(vectorFeature, vectorFeature.shape[1], envelopeResult.T, axis=1)
+        '''
 
         # Create testing lable
-        testingLabel.extend([currentGuy for _ in range(40)])
+        testingLabel.extend([currentGuy for _ in xrange(vectorFeature.shape[0])])
         testingData = np.insert(testingData, testingData.shape[0], vectorFeature, 0)
 
         currentGuy +=1
         rangeOfData.append(rangeOfData[len(rangeOfData)-1] + data.shape[1])
 
+
     testingData = np.delete(testingData, 0, axis=0)
 
-    #for i in range(4):
-    #    writeInFile(testingData[rangeOfData[i]:rangeOfData[i+1]], i)
+    for i in range(4):
+        writeInFile(testingData[rangeOfData[i]:rangeOfData[i+1]], i)
 
     # Max-Min Normalize
     scaleRange = np.abs(np.max(testingData, 0) - np.min(testingData, 0))
@@ -90,7 +92,7 @@ def TrainingModel(dataPool, trainingLabel):
 
 def DataRepresent(dataPool, trainingLabel, rawdata, scaleRange, scaleMin):
     # Preprocessing
-    [axis1, _, axis3, axis4, axis5, axis6, press1, press2, press3, press4] = Preprocessing(rawdata, maxLen=192, n=5)
+    [axis1, _, axis3, axis4, axis5, axis6, press1, press2, press3, press4] = Preprocessing(rawdata, maxLen=250, n=5)
     testingData = np.array([axis1, axis3, axis4, axis5, axis6, press1, press2, press3, press4])
 
     testingFeature = np.zeros((testingData.shape[1], 1))
@@ -122,18 +124,20 @@ def LoadTrainingData(namelist):
     # Load the data in numpy's type
     for name in namelist:
         data = np.genfromtxt(name, delimiter=',')
+        print data.shape
         # Do preprocessing & moving average
-        [axis1, _, axis3, axis4, axis5, axis6, press1, press2, press3, press4] = Preprocessing(data, maxLen=192, n=5)
-        preproData = np.array([axis1, axis3, axis4, axis5, axis6, press1, press2, press3, press4])
+        [axis1, axis2, axis3, axis4, axis5, axis6] = Preprocessing(data, maxLen=250, n=5)
+
+        cleanedData = np.array([axis1, axis2, axis3, axis4, axis5, axis6])
+
         # Collect data which has been processing
-        dataPool.append(preproData)
+        dataPool.append(cleanedData)
+
         # Create training label
-        print axis1.shape
-        if i != 4:
-            trainingLabel.extend([i for _ in range(axis1.shape[0])])
+        trainingLabel.extend([i for _ in range(axis1.shape[0])])
         i+=1
 
-    trainingLabel = trainingLabel * 9
+    trainingLabel = trainingLabel * 6
 
     # Training Model
     modelPool, p_pool, p_table, testingData, _, scaleRange, scaleMin, rangeOfData, LogRegPool = TrainingModel(dataPool[:4], trainingLabel)
@@ -159,48 +163,49 @@ def Run(namelist):
     modelPool, p_table, dataPool, trainingLabel, scaleRange, scaleMin, LogRegPool = Train(namelist)
     print "Ready"
     currentTime = datetime.now()
-    ser = OpenSerial()
-    line = ser.readline()
-    data = []
+    #ser = OpenSerial()
+    #line = ser.readline()
+    #data = []
 
-    print line
+    #print line
 
-    line = ser.readline()
-    while line:
-        print line
+    #line = ser.readline()
+    #while line:
+    #    print line
 
-        line = line.strip()
+    #    line = line.strip()
 
-        if (line != "Closed"):
-            line = (line + ',14,' + str(currentTime.weekday()+1)).split(',')
-            if len(line) != 13:
-                pVal = -2
-                probs =[]
-            line = map(lambda x: int(x), line)
-            data.extend([line])
+    #    if (line != "Closed"):
+    #        line = (line + ',14,' + str(currentTime.weekday()+1)).split(',')
+    #        if len(line) != 13:
+    #            pVal = -2
+    #            probs =[]
+    #        line = map(lambda x: int(x), line)
+    #        data.extend([line])
 
-        if (line == "Closed"):
-            # Data representation
-            if np.array(data).shape[0] > 192:
-                data = (np.array(data)[:192, :]).tolist()
-            if np.array(data).shape[1] == 13:
-                testingFeature = DataRepresent(dataPool, trainingLabel, np.array(data), scaleRange, scaleMin)
-                print testingFeature.shape
-                pVal, probs = Testing(LogRegPool, modelPool, p_table, testingFeature, [1])
-                base.predict(pVal, probs)
-                data =[]
-            else:
-                # Do nothing
-                pVal = -2
-                probs =[]
-                data = []
+    #    if (line == "Closed"):
+    #        # Data representation
+    #        if np.array(data).shape[0] > 192:
+    #            data = (np.array(data)[:192, :]).tolist()
+    #        if np.array(data).shape[1] == 13:
+    #            testingFeature = DataRepresent(dataPool, trainingLabel, np.array(data), scaleRange, scaleMin)
+    #            print testingFeature.shape
+    #            pVal, probs = Testing(LogRegPool, modelPool, p_table, testingFeature, [1])
+    #            base.predict(pVal, probs)
+    #            data =[]
+    #        else:
+    #            # Do nothing
+    #            pVal = -2
+    #            probs =[]
+    #            data = []
 
-        line = ser.readline()
+    #    line = ser.readline()
 
-    return pVal, probs
+    #return pVal, probs
 
 def writeInFile(data, param):
-    name = {0:'Han_feature', 1:'Jhow_feature', 2:'Jing_feature', 3:'Rick_feature'}
+    #name = {0:'Han_feature', 1:'Jhow_feature', 2:'Jing_feature', 3:'Rick_feature'}
+    name = {0:'arthur_features', 1:'brian_features', 2:'nofar_features', 3:'shalom_features'}
     out = open(name[param] + '.csv', 'w')
     for line in data.tolist():
         line = map(lambda x: str(x), line)
@@ -212,6 +217,6 @@ if __name__ == "__main__":
     if len(sys.argv) < 2:
         print "Usage: python ReadSerial.py <fileName>"
         exit(1)
-    base = Base()
-    base.start()
+    #base = Base()
+    #base.start()
     Run([sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4]])
