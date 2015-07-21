@@ -20,8 +20,8 @@ def OpenSerial():
 
 def TrainingModel(dataPool, trainingLabel):
     params = [[0.000200000000000000, 0.0229746337890625], [0.0128000000000000, 0.000637500000000000], [0.00320000000000000, 0.00113906250000000], [0.00640000000000000,0.00170859375000000]]
-
-    testingData = np.zeros((1, 96))
+    # The size of envelope
+    testingData = np.zeros((1, 72))
     testingLabel = []
     rangeOfData = [0]
     modelPool = []
@@ -31,25 +31,23 @@ def TrainingModel(dataPool, trainingLabel):
 
     # The flag of current person
     currentGuy = 0
+    # Create a feature for each one class
     for data in dataPool:
-        # Vectorization
         vectorFeature = np.zeros((data.shape[1], 1))
-        # Combine vectorize features of all axis. (Dimension = n * 153)
-        for x in data:
-            vectorFeature = np.insert(vectorFeature, vectorFeature.shape[1], Vectorize(x), axis=1)
-        vectorFeature = np.delete(vectorFeature, 0, axis=1)
-        print vectorFeature.shape
+
+        training_sample = []
+        print np.array(training_sample).shape
 
         # Envelope
-        '''
-        for idx in range(5):
-            tmp = []
-            for i in range(4):
-                tmp.extend(dataPool[i][idx].tolist())
+        for idx in range(6):
+            training_sample = []
+            map(lambda i: training_sample.extend(dataPool[i][idx].tolist()), xrange(4))
+            # We have 4 labels, so we will get a vector which size is 12 for each axis
+            envelopeResult = np.array(envelope(np.array(trainingLabel[idx*len(training_sample):(idx+1)*len(training_sample)]), training_sample, dataPool[currentGuy][idx], 1))
 
-            envelopeResult = np.array(envelope(np.array(trainingLabel[idx*len(tmp):(idx+1)*len(tmp)]), tmp, dataPool[currentGuy][idx], 1))
             vectorFeature = np.insert(vectorFeature, vectorFeature.shape[1], envelopeResult.T, axis=1)
-        '''
+
+        vectorFeature = np.delete(vectorFeature, 0, axis=1)
 
         # Create testing lable
         testingLabel.extend([currentGuy for _ in xrange(vectorFeature.shape[0])])
@@ -58,25 +56,19 @@ def TrainingModel(dataPool, trainingLabel):
         currentGuy +=1
         rangeOfData.append(rangeOfData[len(rangeOfData)-1] + data.shape[1])
 
-
     testingData = np.delete(testingData, 0, axis=0)
 
+    '''
     for i in range(4):
         writeInFile(testingData[rangeOfData[i]:rangeOfData[i+1]], i)
+    '''
 
-    # Max-Min Normalize
-    scaleRange = np.abs(np.max(testingData, 0) - np.min(testingData, 0))
-    scaleMin = np.min(testingData, 0)
-    # Max and Min is 0, avoiding to divide by zero
-    scaleRange[scaleRange == 0] = 1
-    testingData = (testingData - scaleMin)/scaleRange
-
-
+    # Train a model and validation
     for i in range(len(dataPool)):
-        # OverSampling
+        # Create testing data
         label  = np.array([0 for _ in range(testingData.shape[0])])
         label[rangeOfData[i]:rangeOfData[i+1]] = 1
-        sample = OverSampling(np.insert(testingData, testingData.shape[1], label, axis=1))
+        sample = np.insert(testingData, testingData.shape[1], label, axis=1)
         model, p_val, p_vals = Training(testingData[rangeOfData[i]:rangeOfData[i+1]], sample, params[i])
         # Logistic Regression
         LogReg = LogisticRegression(C=1e3)
@@ -88,19 +80,14 @@ def TrainingModel(dataPool, trainingLabel):
         LogRegPool.append(LogReg)
 
     print "Finish"
-    return modelPool, p_pool, p_table, testingData, testingLabel, scaleRange, scaleMin, rangeOfData, LogRegPool
+    return modelPool, p_pool, p_table, testingData, testingLabel, rangeOfData, LogRegPool
 
 def DataRepresent(dataPool, trainingLabel, rawdata, scaleRange, scaleMin):
     # Preprocessing
-    [axis1, _, axis3, axis4, axis5, axis6, press1, press2, press3, press4] = Preprocessing(rawdata, maxLen=250, n=5)
-    testingData = np.array([axis1, axis3, axis4, axis5, axis6, press1, press2, press3, press4])
+    [axis1, axis2, axis3, axis4, axis5, axis6] = Preprocessing(rawdata, maxLen=250, n=5)
+    testingData = np.array([axis1, axis2, axis3, axis4, axis5, axis6])
 
     testingFeature = np.zeros((testingData.shape[1], 1))
-    # Vectorization
-    for x in testingData:
-        testingFeature = np.insert(testingFeature, testingFeature.shape[1], Vectorize(x), axis=1)
-
-    testingFeature = np.delete(testingFeature, 0, axis=1)
 
     # Envelope
     for idx in range(9):
@@ -110,9 +97,6 @@ def DataRepresent(dataPool, trainingLabel, rawdata, scaleRange, scaleMin):
 
         envelopeResult = np.array(envelope(np.array(trainingLabel[idx*len(tmp):(idx+1)*len(tmp)]), tmp, testingData[idx].tolist(), 1))
         testingFeature = np.insert(testingFeature, testingFeature.shape[1], envelopeResult.T, axis=1)
-
-    # Max-min Normalize
-    testingFeature = (testingFeature-scaleMin)/scaleRange
 
     return testingFeature
 
@@ -140,27 +124,16 @@ def LoadTrainingData(namelist):
     trainingLabel = trainingLabel * 6
 
     # Training Model
-    modelPool, p_pool, p_table, testingData, _, scaleRange, scaleMin, rangeOfData, LogRegPool = TrainingModel(dataPool[:4], trainingLabel)
-    return modelPool, p_pool, dataPool, trainingLabel, scaleRange, scaleMin, LogRegPool
+    modelPool, p_pool, p_table, testingData, _, rangeOfData, LogRegPool = TrainingModel(dataPool[:4], trainingLabel)
+    return modelPool, p_pool, dataPool, trainingLabel, LogRegPool
 
 def Train(namelist=['~/DataSet/Han.csv', '~/DataSet/jhow.csv', '~/DataSet/jing.csv', '~/DataSet/rick.csv']):
-    modelPool, p_tabel, dataPool, trainingLabel, scaleRange, scaleMin, LogRegPool = LoadTrainingData(namelist)
+    modelPool, p_tabel, dataPool, trainingLabel, LogRegPool = LoadTrainingData(namelist)
 
-    ## Use intruder data
-    #data = np.genfromtxt(intruder, delimiter=',')
-    #print data.shape
-    ## Do preprocessing & moving average
-    #testingFeature = DataRepresent(dataPool, trainingLabel, data, scaleRange, scaleMin)
-    ## Random sampling
-    #testingFeature = testingFeature[rd.sample(range(len(testingFeature)), 1), :]
-    #print testingFeature.shape
-    #Testing(LogRegPool, modelPool, p_tabel, testingFeature, [-1 for _ in range(len(testingFeature))])
-    #print "finish"
-
-    return modelPool, p_tabel, dataPool, trainingLabel, scaleRange, scaleMin, LogRegPool
+    return modelPool, p_tabel, dataPool, trainingLabel, LogRegPool
 
 def Run(namelist):
-    modelPool, p_table, dataPool, trainingLabel, scaleRange, scaleMin, LogRegPool = Train(namelist)
+    modelPool, p_table, dataPool, trainingLabel, LogRegPool = Train(namelist)
     print "Ready"
     currentTime = datetime.now()
     #ser = OpenSerial()
