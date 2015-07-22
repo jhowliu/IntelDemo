@@ -22,6 +22,7 @@ def Testing(LogRegPool, modelPool, p_table, testingFeature, testingLabel=[]):
 
         for (model, LogReg) in zip(modelPool, LogRegPool):
             p_label, _, p_val = svm_predict([1], [feature.tolist()], model)
+            print p_val
             tmp_probs = np.insert(tmp_probs, tmp_probs.shape[0], LogReg.predict_proba(np.array(p_val))[0][1])
             tmp.append(p_val[0][0]/p_table[idx])
             idx += 1
@@ -31,7 +32,7 @@ def Testing(LogRegPool, modelPool, p_table, testingFeature, testingLabel=[]):
 
         if np.max(tmp_probs) > 0.5 and pVal == -1:
             tmp_probs[tmp_probs==np.max(tmp_probs)] -= 0.5
-
+        print tmp_probs
         for x in tmp_probs.tolist():
             probs.append((str(np.around(x * 100, decimals=3)) + '%' , str(np.around(x / (np.sum(np.array(tmp_probs))) * 100, decimals=3)) + '%'))
 

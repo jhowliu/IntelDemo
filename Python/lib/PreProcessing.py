@@ -24,8 +24,8 @@ def Preprocessing(rawSeries, n=2, maxLen=200):
     dataLen = idx[1:]-idx[0:-1]
 
     # Remove the data which length is smaller than 100
-    idx = idx[dataLen > 100]
-    dataLen = dataLen[dataLen > 100]
+    idx = idx[dataLen > 50]
+    dataLen = dataLen[dataLen > 50]
 
     axis1  = np.zeros((idx.shape[0], maxLen))
     axis2  = np.zeros((idx.shape[0], maxLen))

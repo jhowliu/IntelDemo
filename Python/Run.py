@@ -20,7 +20,7 @@ def OpenSerial():
     return serial.Serial('/dev/tty.usbmodem1421', 9600)
 
 def TrainingModel(dataPool, trainingLabel):
-    params = [[0.000200000000000000, 0.0229746337890625], [0.0128000000000000, 0.000637500000000000], [0.00320000000000000, 0.00113906250000000], [0.00640000000000000,0.00170859375000000]]
+    params = [[0.000200000000000000, 0.0229746337890625], [0.0128000000000000, 0.00637500000000000], [0.00320000000000000, 0.00113906250000000], [0.00640000000000000,0.00170859375000000]]
     # The size of envelope
     testingData = np.zeros((1, 72))
     testingLabel = []
@@ -37,8 +37,7 @@ def TrainingModel(dataPool, trainingLabel):
         vectorFeature = np.zeros((data.shape[1], 1))
 
         training_sample = []
-        print np.array(training_sample).shape
-
+        print np.array(training_sample).shape 
         # Envelope
         for idx in range(6):
             training_sample = []
@@ -194,8 +193,8 @@ if __name__ == "__main__":
     #base = Base()
     #base.start()
     namelist = [sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4]]
-    data = np.genfromtxt(sys.argv[5], delimiter=',')
+    test_data = np.genfromtxt(sys.argv[5], delimiter=',')
     modelPool, p_table, dataPool, trainingLabel, LogRegPool = Train(namelist)
-    testingFeature = DataRepresent(dataPool, trainingLabel, np.array(data))
+    testingFeature = DataRepresent(dataPool, trainingLabel, np.array(test_data))
     pVal, probs = Testing(LogRegPool, modelPool, p_table, testingFeature, [1])
     print probs
