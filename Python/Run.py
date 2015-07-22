@@ -5,6 +5,7 @@ import sys
 sys.path.append('lib')
 import random as rd
 import numpy as np
+import pandas as pd
 from datetime import datetime
 from Envelope import envelope
 from Demo_UI import Base
@@ -82,20 +83,20 @@ def TrainingModel(dataPool, trainingLabel):
     print "Finish"
     return modelPool, p_pool, p_table, testingData, testingLabel, rangeOfData, LogRegPool
 
-def DataRepresent(dataPool, trainingLabel, rawdata, scaleRange, scaleMin):
+def DataRepresent(dataPool, trainingLabel, rawdata):
     # Preprocessing
     [axis1, axis2, axis3, axis4, axis5, axis6] = Preprocessing(rawdata, maxLen=250, n=5)
     testingData = np.array([axis1, axis2, axis3, axis4, axis5, axis6])
+    #print testingData
 
     testingFeature = np.zeros((testingData.shape[1], 1))
 
     # Envelope
-    for idx in range(9):
-        tmp = []
-        for i in range(4):
-            tmp.extend(dataPool[i][idx].tolist())
+    for idx in range(6):
+        training_sample = []
+        map(lambda i: training_sample.extend(dataPool[i][idx].tolist()), xrange(4))
 
-        envelopeResult = np.array(envelope(np.array(trainingLabel[idx*len(tmp):(idx+1)*len(tmp)]), tmp, testingData[idx].tolist(), 1))
+        envelopeResult = np.array(envelope(np.array(trainingLabel[idx*len(training_sample):(idx+1)*len(training_sample)]), training_sample, testingData[idx].tolist(), 1))
         testingFeature = np.insert(testingFeature, testingFeature.shape[1], envelopeResult.T, axis=1)
 
     return testingFeature
@@ -161,7 +162,7 @@ def Run(namelist):
     #        if np.array(data).shape[0] > 192:
     #            data = (np.array(data)[:192, :]).tolist()
     #        if np.array(data).shape[1] == 13:
-    #            testingFeature = DataRepresent(dataPool, trainingLabel, np.array(data), scaleRange, scaleMin)
+    #            testingFeature = DataRepresent(dataPool, trainingLabel, np.array(data))
     #            print testingFeature.shape
     #            pVal, probs = Testing(LogRegPool, modelPool, p_table, testingFeature, [1])
     #            base.predict(pVal, probs)
@@ -192,4 +193,9 @@ if __name__ == "__main__":
         exit(1)
     #base = Base()
     #base.start()
-    Run([sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4]])
+    namelist = [sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4]]
+    data = np.genfromtxt(sys.argv[5], delimiter=',')
+    modelPool, p_table, dataPool, trainingLabel, LogRegPool = Train(namelist)
+    testingFeature = DataRepresent(dataPool, trainingLabel, np.array(data))
+    pVal, probs = Testing(LogRegPool, modelPool, p_table, testingFeature, [1])
+    print probs
