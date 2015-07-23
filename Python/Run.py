@@ -9,10 +9,9 @@ import pandas as pd
 from datetime import datetime
 from Envelope import envelope
 from Demo_UI import Base
+from Processing import Evalidation
 from Processing import Testing
 from Processing import Training
-from Sampling import OverSampling
-from Vectorization import Vectorize
 from PreProcessing import Preprocessing
 from sklearn.linear_model import LogisticRegression
 
@@ -20,67 +19,53 @@ def OpenSerial():
     return serial.Serial('/dev/tty.usbmodem1421', 9600)
 
 def TrainingModel(dataPool, trainingLabel):
-    params = [[0.000200000000000000, 0.0229746337890625], [0.0128000000000000, 0.00637500000000000], [0.00320000000000000, 0.00113906250000000], [0.00640000000000000,0.00170859375000000]]
-    # The size of envelope
-    testingData = np.zeros((1, 72))
-    testingLabel = []
-    rangeOfData = [0]
-    modelPool = []
-    p_pool = []
-    p_table = []
-    LogRegPool = []
+    labels = []
 
     # The flag of current person
-    currentGuy = 0
+    i = 0
     # Create a feature for each one class
-    for data in dataPool:
-        vectorFeature = np.zeros((data.shape[1], 1))
+    features = np.zeros((1, 72))
+    print features.shape
 
-        training_sample = []
-        print np.array(training_sample).shape 
-        # Envelope
+    for data in dataPool:
+        # Use to concat all axies data
+        tmp = np.zeros((data.shape[1], 1))
+        # Create an envelope features
         for idx in range(6):
             training_sample = []
             map(lambda i: training_sample.extend(dataPool[i][idx].tolist()), xrange(4))
             # We have 4 labels, so we will get a vector which size is 12 for each axis
-            envelopeResult = np.array(envelope(np.array(trainingLabel[idx*len(training_sample):(idx+1)*len(training_sample)]), training_sample, dataPool[currentGuy][idx], 1))
+            envelopeResult = np.array(envelope(np.array(trainingLabel[idx*len(training_sample):(idx+1)*len(training_sample)]), training_sample, dataPool[i][idx], 1))
 
-            vectorFeature = np.insert(vectorFeature, vectorFeature.shape[1], envelopeResult.T, axis=1)
+            tmp = np.insert(tmp, tmp.shape[1], envelopeResult.T, axis=1)
 
-        vectorFeature = np.delete(vectorFeature, 0, axis=1)
+        tmp = np.delete(tmp, 0, axis=1)
+
+        print tmp.shape
+
+        features = np.insert(features, features.shape[0], tmp, axis=0)
 
         # Create testing lable
-        testingLabel.extend([currentGuy for _ in xrange(vectorFeature.shape[0])])
-        testingData = np.insert(testingData, testingData.shape[0], vectorFeature, 0)
+        labels.extend([i for _ in xrange(tmp.shape[0])])
 
-        currentGuy +=1
-        rangeOfData.append(rangeOfData[len(rangeOfData)-1] + data.shape[1])
+        i = i+1
+    # Remove the first row of zeros 
+    features = np.delete(features, 0, axis=0)
 
-    testingData = np.delete(testingData, 0, axis=0)
+    print np.array(features).shape, np.array(labels).shape
 
+    model = Training(features, labels, c=10**-5)
+    Evalidation(features, np.array(labels))
     '''
+    # For saving the features
     for i in range(4):
         writeInFile(testingData[rangeOfData[i]:rangeOfData[i+1]], i)
     '''
 
-    # Train a model and validation
-    for i in range(len(dataPool)):
-        # Create testing data
-        label  = np.array([0 for _ in range(testingData.shape[0])])
-        label[rangeOfData[i]:rangeOfData[i+1]] = 1
-        sample = np.insert(testingData, testingData.shape[1], label, axis=1)
-        model, p_val, p_vals = Training(testingData[rangeOfData[i]:rangeOfData[i+1]], sample, params[i])
-        # Logistic Regression
-        LogReg = LogisticRegression(C=1e3)
-        LogReg.fit(np.array(p_vals), sample[:, -1])
-
-        p_pool.append(p_val)
-        p_table.append(p_vals)
-        modelPool.append(model)
-        LogRegPool.append(LogReg)
-
+    print model
     print "Finish"
-    return modelPool, p_pool, p_table, testingData, testingLabel, rangeOfData, LogRegPool
+
+    return model
 
 def DataRepresent(dataPool, trainingLabel, rawdata):
     # Preprocessing
@@ -97,6 +82,8 @@ def DataRepresent(dataPool, trainingLabel, rawdata):
 
         envelopeResult = np.array(envelope(np.array(trainingLabel[idx*len(training_sample):(idx+1)*len(training_sample)]), training_sample, testingData[idx].tolist(), 1))
         testingFeature = np.insert(testingFeature, testingFeature.shape[1], envelopeResult.T, axis=1)
+    print testingFeature
+    testingFeature = np.delete(testingFeature, 0, axis=1)
 
     return testingFeature
 
@@ -124,57 +111,18 @@ def LoadTrainingData(namelist):
     trainingLabel = trainingLabel * 6
 
     # Training Model
-    modelPool, p_pool, p_table, testingData, _, rangeOfData, LogRegPool = TrainingModel(dataPool[:4], trainingLabel)
-    return modelPool, p_pool, dataPool, trainingLabel, LogRegPool
+    model = TrainingModel(dataPool[:4], trainingLabel)
+    return model, dataPool, trainingLabel
 
 def Train(namelist=['~/DataSet/Han.csv', '~/DataSet/jhow.csv', '~/DataSet/jing.csv', '~/DataSet/rick.csv']):
-    modelPool, p_tabel, dataPool, trainingLabel, LogRegPool = LoadTrainingData(namelist)
+    model, dataPool, trainingLabel = LoadTrainingData(namelist)
 
-    return modelPool, p_tabel, dataPool, trainingLabel, LogRegPool
+    return model, dataPool, trainingLabel
 
 def Run(namelist):
-    modelPool, p_table, dataPool, trainingLabel, LogRegPool = Train(namelist)
+    model, dataPool, trainingLabel = Train(namelist)
     print "Ready"
-    currentTime = datetime.now()
-    #ser = OpenSerial()
-    #line = ser.readline()
-    #data = []
 
-    #print line
-
-    #line = ser.readline()
-    #while line:
-    #    print line
-
-    #    line = line.strip()
-
-    #    if (line != "Closed"):
-    #        line = (line + ',14,' + str(currentTime.weekday()+1)).split(',')
-    #        if len(line) != 13:
-    #            pVal = -2
-    #            probs =[]
-    #        line = map(lambda x: int(x), line)
-    #        data.extend([line])
-
-    #    if (line == "Closed"):
-    #        # Data representation
-    #        if np.array(data).shape[0] > 192:
-    #            data = (np.array(data)[:192, :]).tolist()
-    #        if np.array(data).shape[1] == 13:
-    #            testingFeature = DataRepresent(dataPool, trainingLabel, np.array(data))
-    #            print testingFeature.shape
-    #            pVal, probs = Testing(LogRegPool, modelPool, p_table, testingFeature, [1])
-    #            base.predict(pVal, probs)
-    #            data =[]
-    #        else:
-    #            # Do nothing
-    #            pVal = -2
-    #            probs =[]
-    #            data = []
-
-    #    line = ser.readline()
-
-    #return pVal, probs
 
 def writeInFile(data, param):
     #name = {0:'Han_feature', 1:'Jhow_feature', 2:'Jing_feature', 3:'Rick_feature'}
@@ -190,11 +138,12 @@ if __name__ == "__main__":
     if len(sys.argv) < 2:
         print "Usage: python ReadSerial.py <fileName>"
         exit(1)
-    #base = Base()
-    #base.start()
+
     namelist = [sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4]]
     test_data = np.genfromtxt(sys.argv[5], delimiter=',')
-    modelPool, p_table, dataPool, trainingLabel, LogRegPool = Train(namelist)
-    testingFeature = DataRepresent(dataPool, trainingLabel, np.array(test_data))
-    pVal, probs = Testing(LogRegPool, modelPool, p_table, testingFeature, [1])
-    print probs
+
+    model, dataPool, trainingLabel = Train(namelist)
+    test_feature = DataRepresent(dataPool, trainingLabel, np.array(test_data))
+    predicted_label = Testing(model, test_feature)
+
+    print predicted_label

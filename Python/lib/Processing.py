@@ -1,42 +1,51 @@
 import sys
-sys.path.append('/home/jhowliu/Work/IntelDemo/Python/libsvm/python/')
 import numpy as np
-from svmutil import *
+from sklearn.svm import LinearSVC
 
 name = {0:"Han", 1:"Jhow", 2:"Jing", 3:"Rick"}
 
-def Training(data, testing, params):
-    param = '-s 2 -t 2 -n ' + str(params[0]) + ' -g ' + str(params[1])
-    model = svm_train([1 for _ in range(len(data))], data.tolist(), param)
-    p_label, p_acc, p_val = svm_predict(testing[:,-1].tolist(), testing[:, :-1].tolist(), model)
+def Training(training_feature, labels, c=1):
+    clf = LinearSVC()
+    clf.C = c
+    clf.fit(training_feature, labels)
 
-    return model, np.max(p_val), p_val
+    return clf
 
-def Testing(LogRegPool, modelPool, p_table, testingFeature, testingLabel=[]):
-    probs = []
-    tmp_probs = np.array([])
-    for feature in testingFeature:
-        pVal = -1
-        idx = 0
-        tmp = []
+def Testing(model, testing_feature):
+    return model.predict(testing_feature)
 
-        for (model, LogReg) in zip(modelPool, LogRegPool):
-            p_label, _, p_val = svm_predict([1], [feature.tolist()], model)
-            print p_val
-            tmp_probs = np.insert(tmp_probs, tmp_probs.shape[0], LogReg.predict_proba(np.array(p_val))[0][1])
-            tmp.append(p_val[0][0]/p_table[idx])
-            idx += 1
-
-        if np.sum(np.array(tmp) > 0) != 0:
-            pVal = np.where(tmp == np.max(tmp))[0][0]
-
-        if np.max(tmp_probs) > 0.5 and pVal == -1:
-            tmp_probs[tmp_probs==np.max(tmp_probs)] -= 0.5
-        print tmp_probs
-        for x in tmp_probs.tolist():
-            probs.append((str(np.around(x * 100, decimals=3)) + '%' , str(np.around(x / (np.sum(np.array(tmp_probs))) * 100, decimals=3)) + '%'))
+def Evalidation(features, labels, k=10):
+    training_error = {}
+    validation_error = {} 
+    model = LinearSVC()
 
 
-        print pVal
+    for c in [10**x for x in range(-10, 0, 1)]:
+        print c
+        model.C = c
+        tmp_training = []
+        tmp_testing  = []
+        for i in xrange(k):
+            train_idx = np.random.choice(xrange(features.shape[0]), int(0.8*features.shape[0]))
+            test_idx  = list(set(xrange(features.shape[0])) - set(train_idx))
+            model.fit(features[train_idx], labels[train_idx])
+            tmp_training.append(1.0 - model.score(features[train_idx], labels[train_idx]))
+            tmp_testing.append(1.0 - model.score(features[test_idx], labels[test_idx]))
 
-    return pVal, probs
+        training_error[c] = np.mean(tmp_training)
+        validation_error[c] = np.mean(tmp_testing)
+
+    print training_error
+    print validation_error
+
+    tmp = open('out.csv', 'w')
+
+    for c in [10**x for x in range(-10, 0, 1)]:
+        tmp.write(','.join(str(x) for x in [c, training_error[c], validation_error[c]]) + '\n')
+
+    tmp.close()
+    #print 'Training Error   = ' + str(np.mean(training_error))
+    #print 'Validation Error = ' + str(np.mean(validation_error))
+
+
+
