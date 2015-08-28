@@ -714,7 +714,7 @@ void setup()
   // Clear the 'sleep' bit to start the sensor.
   MPU6050_write_reg (MPU6050_PWR_MGMT_1, 0);
   // First, Collect 100 data.
-  /*while (counter < 100) {
+  while (counter < 100) {
     MPU6050_read (MPU6050_ACCEL_XOUT_H, (uint8_t *) &accel_t_gyro, sizeof(accel_t_gyro));
     
     SWAP (accel_t_gyro.reg.t_h, accel_t_gyro.reg.t_l);
@@ -726,7 +726,7 @@ void setup()
     counter++;
     
     delay(10);
-  }*/
+  }
   
   Serial.print(result[0]); // MEAN
   Serial.print(", ");
@@ -787,20 +787,20 @@ void loop()
   
   //Serial.println(detect(result[0], result[1], (int)accel_t_gyro.value.x_gyro));
   // Print the udpating Mean and Std.
-  /*
+  
   Serial.print("Mean:");
   Serial.print(result[0]);
   Serial.print(", Std:");
   Serial.print(result[1]);
   Serial.print(", Num:");
   Serial.println(result[2]);
-  */
+  
   char *tmp[10];
   // Caculate number of door open.
   if (closing) {
       
       char *data = dump(index++, (int)accel_t_gyro.value.x_accel, (int)accel_t_gyro.value.y_accel, (int)accel_t_gyro.value.z_accel, (int)accel_t_gyro.value.x_gyro, (int)accel_t_gyro.value.y_gyro, (int)accel_t_gyro.value.z_gyro, (int)press_1, press_2, press_3, press_4);
-      Serial.print(data);
+      //Serial.print(data);
               
       free(data);
       
@@ -809,7 +809,7 @@ void loop()
           
           Serial.println("Closed");         
       }
-       
+      
       closeCounter = !detect(result[0], result[1], (int)accel_t_gyro.value.y_gyro) ? closeCounter+1 : 0; 
   }
   else if(detect(result[0], result[1], (int)accel_t_gyro.value.y_gyro) && opened) {
